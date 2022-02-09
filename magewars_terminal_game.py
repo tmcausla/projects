@@ -1,3 +1,5 @@
+import random
+
 class Unit:
     def __init__(self, name, max_health, armor=0):
         self.name = name
@@ -9,6 +11,7 @@ class Unit:
         self.is_dead = False
         self.is_poison = False
         self.is_burn = False
+        self.is_weak = False
 
     def gain_health(self, value):
         self.health += value
@@ -27,6 +30,27 @@ class Unit:
         if self.health <= 0:
             self.health = 0
             self.is_dead = True
+            self.is_active = False
+
+    def roll_d4(self):
+        return random.randint(1, 4)
+
+    def roll_d6(self):
+        return random.randint(1, 6)
+
+    def roll_d8(self):
+        return random.randint(1, 8)
+
+    def roll_d10(self):
+        return random.randint(1, 10)
+
+    def roll_d12(self):
+        return random.randint(1, 12)
+
+    def roll_d20(self):
+        return random.randint(1, 20)
+
+
         
 
 
