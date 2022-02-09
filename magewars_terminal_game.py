@@ -1,10 +1,12 @@
 import random
 
 class Unit:
-    def __init__(self, name, max_health, armor=0):
+    def __init__(self, name, max_health, weapon, attack_dice, armor=0):
         self.name = name
         self.max_health = max_health
         self.health = max_health
+        self.weapon = weapon
+        self.attack_dice = attack_dice
         self.full_armor = armor
         self.armor = armor
         self.is_active = True
@@ -32,27 +34,18 @@ class Unit:
             self.is_dead = True
             self.is_active = False
 
-    def roll_d4(self):
-        return random.randint(1, 4)
+    def roll_dice(self):
+        sum = 0
+        for die in self.attack_dice:
+            sum += random.randint(1, die)
+        return sum
 
-    def roll_d6(self):
-        return random.randint(1, 6)
-
-    def roll_d8(self):
-        return random.randint(1, 8)
-
-    def roll_d10(self):
-        return random.randint(1, 10)
-
-    def roll_d12(self):
-        return random.randint(1, 12)
-
-    def roll_d20(self):
-        return random.randint(1, 20)
+    def attack(self, enemy):
+        enemy.lose_health(self.roll_dice())
 
 class Mage(Unit):
-    def __init__(self, name, max_health, start_mana, mana_regen, armor=0):
-        super().__init__(name, max_health, armor)
+    def __init__(self, name, max_health, start_mana, mana_regen, weapon, attack_dice, armor=0):
+        super().__init__(name, max_health, weapon, attack_dice, armor)
         self.mana = start_mana
         self.mana_regen = mana_regen
         self.spellbook = []
