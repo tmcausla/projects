@@ -50,9 +50,18 @@ class Unit:
     def roll_d20(self):
         return random.randint(1, 20)
 
+class Mage(Unit):
+    def __init__(self, name, max_health, start_mana, mana_regen, armor=0):
+        super().__init__(name, max_health, armor)
+        self.mana = start_mana
+        self.mana_regen = mana_regen
+        self.spellbook = []
+        self.front_line = []
+        self.graveyard = []
 
-        
+    def gain_mana(self, value):
+        self.mana += value
 
-
+    def lose_mana(self, value):
+        self.mana -= value
     
-
