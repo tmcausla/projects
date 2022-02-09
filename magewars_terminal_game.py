@@ -64,4 +64,6 @@ class Mage(Unit):
 
     def lose_mana(self, value):
         self.mana -= value
+        if self.mana < 0:
+            self.mana = 0
     
