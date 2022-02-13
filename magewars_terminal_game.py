@@ -71,10 +71,11 @@ class Creature(Unit):
 
 
 class Spell:
-    def __init__(self, name, action, attack_dice):
+    def __init__(self, name, action, attack_dice, mana_cost):
         self.name = name
         self.action = action
         self.attack_dice = attack_dice
+        self.mana_cost = mana_cost
     
     def roll_dice(self):
         sum = 0
