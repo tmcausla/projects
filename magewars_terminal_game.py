@@ -63,6 +63,18 @@ class Mage(Unit):
         if self.mana < 0:
             self.mana = 0
 
+    def list_spellbook(self):
+        for spell in self.spellbook:
+            print(spell)
+
+    def list_front_line(self):
+        for unit in self.front_line:
+            print(unit)
+
+    def list_graveyard(self):
+        for spell in self.graveyard:
+            print(spell)
+
     
 class Creature(Unit):
     def __init__(self, name, max_health, mana_cost, weapon, attack_dice, armor=0):
