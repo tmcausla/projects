@@ -13,6 +13,8 @@ class Unit:
         self.armor = armor
         self.is_active = False
         self.is_ranged = is_ranged
+        self.advantage = False
+        self.disadvantage = False
         self.is_dead = False
         self.is_poison = False
         self.is_burn = False
@@ -66,7 +68,7 @@ class Mage(Unit):
         self.is_active = True
 
     def __repr__(self):
-        return f"{self.name} is a {self.school} Mage.  They have {self.health} health and attack with {self.weapon} using d{self.attack_dice} dice.  They have {self.mana} mana and regain {self.mana_regen} at the start of every round."
+        return f"{self.name} is a {self.school} Mage.  They have {self.health} health + {self.armor} armor and attack with {self.weapon} using d{self.attack_dice} dice.  They have {self.mana} mana and regain {self.mana_regen} mana at the start of every round."
 
     def gain_mana(self, value):
         self.mana += value
@@ -79,16 +81,67 @@ class Mage(Unit):
         print(f'{self.name} now has {self.mana} mana')
 
     def list_spellbook(self):
+        print('Spells available to be cast:')
         for spell in self.spellbook:
             print(spell)
+        print('----------')
 
     def list_front_line(self):
+        print('----------')
         for unit in self.front_line:
             print(unit)
+        print('----------')
 
     def list_graveyard(self):
+        print('Spells currently in your graveyard pile:')
         for spell in self.graveyard:
             print(spell)
+        print('----------')
+
+    def cast_spell(self, spell, target=None):
+        if isinstance(spell, Creature):
+            self.front_line.append(spell)
+            print(f'{self.name} has summoned {spell.name} to the arena.\n')
+        else:
+            print(f'{self.name} is casting {spell.name} on {target.name}.')
+            if 'heal' in spell.action:
+                target.gain_health(spell.roll_dice())
+            if 'take damage' in spell.action:
+                target.lose_health(spell.roll_dice())
+            if 'be poisoned' in spell.action:
+                target.is_poison = True
+                print(f'{target.name} is poisoned!\n')
+            if 'cure poison' in spell.action:
+                target.is_poison = False
+                print(f'{target.name} is no longer poisoned.\n')
+            if 'be burned' in spell.action:
+                target.is_burn = True
+                print(f'{target.name} is burned!\n')
+            if 'cure burn' in spell.action:
+                target.is_burn = False
+                print(f'{target.name} is no longer burned.\n')
+            if 'be weakened' in spell.action:
+                target.is_weak = True
+                print(f'{target.name} is feeling weak!\n')
+            if 'cure weak' in spell.action:
+                target.is_weak = False
+                print(f'{target.name} is no longer feeling weak.\n')
+            if 'gain advantage' in spell.action:
+                if target.disadvantage:
+                    target.disadvantage = False
+                    print(f'{target.name} is no longer at a disadvantage.\n')
+                else:
+                    target.advantage = True
+                    print(f'{target.name} has gained advantage for attack!\n')
+            if 'gain disadvantage' in spell.action:
+                if target.advantage:
+                    target.advantage = False
+                    print(f'{target.name} has lost advantage.\n')
+                else:
+                    target.disadvantage = True
+                    print(f'{target.name} is now disadvantaged at attacking!')
+            self.graveyard.append(spell)
+        self.spellbook.remove(spell)
 
     
 class Creature(Unit):
@@ -97,7 +150,7 @@ class Creature(Unit):
         self.mana_cost = mana_cost
 
     def __repr__(self):
-        return f"{self.name} is a {self.school} creature.  It has {self.health} health and attacks with {self.weapon} using d{self.attack_dice} dice."
+        return f"{self.name} is a {self.school} creature that costs {self.mana_cost} mana to summon.  It has {self.health} health + {self.armor} armor and attacks with {self.weapon} using d{self.attack_dice} dice."
 
 
 class Spell:
@@ -109,7 +162,7 @@ class Spell:
         self.mana_cost = mana_cost
 
     def __repr__(self):
-        return f"{self.name} is a {self.school} spell that costs {self.mana_cost} mana.  Its target will {str(self.action)} using d{self.attack_dice} dice."
+        return f"{self.name} is a {self.school} spell that costs {self.mana_cost} mana.  Its target will {' and '.join(self.action)} using d{self.attack_dice} dice."
     
     def roll_dice(self):
         sum = 0
@@ -122,10 +175,13 @@ class Spell:
 
 
 ########TEST AREA#########
-dragon1 = Creature("Alfiya", "Holy", 19, 24, "holy dragon breath", [8, 8, 6], 3)
-cleric1 = Creature("Artemis", "Holy", 10, 14, "a spear", [6, 6], 1, True)
-angel1 = Creature("Cassiel", "Holy", 8, 9, 'holy magic', [4, 4])
-angel2 = Creature("Guardian Angel", "Holy", 12, 12, 'a shortsword', [8, 8], 1)
+dragon1 = Creature("Alfiya", "Holy Dragon", 19, 24, "holy dragon breath", [8, 8, 6], 3)
+cleric1 = Creature("Artemis", "Holy Cleric", 10, 14, "a spear", [6, 6], 1, True)
+angel1 = Creature("Cassiel", "Holy Angel", 8, 9, 'holy magic', [4, 4])
+angel2 = Creature("Guardian Angel", "Holy Angel", 12, 12, 'a shortsword', [8, 8], 1)
+heal1 = Spell("Minor Restoration", "Holy healing", ["heal"], [4, 4], 6)
+fireball1 = Spell("Fireball", "Fire attack", ["take damage"], [10, 4, 4], 12)
+sludge_bomb = Spell("Sludge Bomb", "Poison attack", ['take damage', 'be poisoned'], [6, 6], 5)
 
 
 #angel2.attack(dragon1)
@@ -133,16 +189,8 @@ angel2 = Creature("Guardian Angel", "Holy", 12, 12, 'a shortsword', [8, 8], 1)
 #dragon1.gain_health(dragon1.roll_dice())
 
 player1 = Mage("Asyra", "Holy", 34, 9, 9, "the Staff of Asyra", [6, 6])
-player1.spellbook = [dragon1, cleric1, angel1, angel2]
-#player1.list_spellbook()
-#player1.list_front_line()
+player1.spellbook = [dragon1, cleric1, angel1, angel2, heal1, fireball1, sludge_bomb]
 
-player1.list_spellbook()
-print('-------')
-player1.list_graveyard()
-print('\n-------\n-------\n')
-player1.spellbook.remove(dragon1)
-player1.graveyard.append(dragon1)
-player1.list_graveyard()
-print('----------')
-player1.list_spellbook()
+player1.cast_spell(dragon1)
+player1.cast_spell(sludge_bomb, dragon1)
+player1.cast_spell(heal1, dragon1)
