@@ -17,28 +17,35 @@ class Unit:
         self.is_weak = False
 
     def gain_health(self, value):
+        print(f'{self.name} is gaining {value} health')
         self.health += value
         if self.health > self.max_health:
             self.health = self.max_health
+        print(f'{self.name} now has {self.health} health\n')
     
     def lose_health(self, value):
+        print(f'{self.name} is taking {value} damage')
         if self.armor > 0:
+            print(f'{self.name} has {self.armor} armor')
             if value >= self.armor:
                 value -= self.armor
                 self.armor = 0    
             else:
                 self.armor -= value
+                print(f'{self.name} now has {self.health} health and {self.armor} armor\n')
                 return
         self.health -= value
         if self.health <= 0:
             self.health = 0
             self.is_dead = True
             self.is_active = False
+        print(f'{self.name} now has {self.health} health and {self.armor} armor\n')
 
     def roll_dice(self):
         sum = 0
         for die in self.attack_dice:
             sum += random.randint(1, die)
+        print(f'Your attack dice rolled {sum}')
         return sum
 
     def attack(self, target):
@@ -57,11 +64,13 @@ class Mage(Unit):
 
     def gain_mana(self, value):
         self.mana += value
+        print(f'{self.name} now has {self.mana} mana')
 
     def lose_mana(self, value):
         self.mana -= value
         if self.mana < 0:
             self.mana = 0
+        print(f'{self.name} now has {self.mana} mana')
 
     def list_spellbook(self):
         for spell in self.spellbook:
@@ -93,4 +102,5 @@ class Spell:
         sum = 0
         for die in self.attack_dice:
             sum += random.randint(1, die)
+        print(f'Your spell dice rolled {sum}')
         return sum
