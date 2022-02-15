@@ -22,35 +22,36 @@ class Unit:
         self.is_weak = False
 
     def gain_health(self, value):
-        print(f'{self.name} is gaining {value} health')
+        print(f'{self.name} is gaining {value} health.')
         self.health += value
         if self.health > self.max_health:
             self.health = self.max_health
-        print(f'{self.name} now has {self.health} health\n')
+        print(f'{self.name} now has {self.health} health.\n')
     
     def lose_health(self, value):
-        print(f'{self.name} is taking {value} damage')
+        print(f'{self.name} is taking {value} damage.')
         if self.armor > 0:
-            print(f'{self.name} has {self.armor} armor')
+            print(f'{self.name} has {self.armor} armor.')
             if value >= self.armor:
                 value -= self.armor
                 self.armor = 0    
             else:
                 self.armor -= value
-                print(f'{self.name} now has {self.health} health and {self.armor} armor\n')
+                print(f'{self.name} now has {self.health} health and {self.armor} armor.\n')
                 return
         self.health -= value
         if self.health <= 0:
             self.health = 0
             self.is_dead = True
             self.is_active = False
-        print(f'{self.name} now has {self.health} health and {self.armor} armor\n')
+            print(f'{self.name} is dead!\n')
+        print(f'{self.name} now has {self.health} health and {self.armor} armor.\n')
 
     def roll_dice(self):
         sum = 0
         for die in self.attack_dice:
             sum += random.randint(1, die)
-        print(f'Your attack dice rolled {sum}')
+        print(f'Your attack dice rolled {sum}.')
         return sum
 
     def roll_status_die(self):
@@ -60,9 +61,8 @@ class Unit:
 
     def attack(self, target):
         if isinstance(target, Mage) and not self.is_ranged:
-            print(f'{target.name} may select a creature to guard.')
             target = target.choose_guard()
-        print(f'{self.name} is attacking {target.name}')
+        print(f'{self.name} is attacking {target.name}.')
         attack_value = self.roll_dice()
         if self.advantage:
             print('Advantage! Reroll and take the higher result.')
@@ -98,13 +98,13 @@ class Mage(Unit):
 
     def gain_mana(self, value):
         self.mana += value
-        print(f'{self.name} now has {self.mana} mana')
+        print(f'{self.name} now has {self.mana} mana.')
 
     def lose_mana(self, value):
         self.mana -= value
         if self.mana < 0:
             self.mana = 0
-        print(f'{self.name} now has {self.mana} mana')
+        print(f'{self.name} now has {self.mana} mana.')
 
     def list_spellbook(self):
         print('Spells available to be cast:')
@@ -118,6 +118,9 @@ class Mage(Unit):
             print(unit)
         print('----------')
 
+    def list_active(self):
+        return [unit for unit in self.front_line if unit.is_active]
+
     def list_graveyard(self):
         print('Spells currently in your graveyard pile:')
         for spell in self.graveyard:
@@ -125,14 +128,21 @@ class Mage(Unit):
         print('----------')
 
     def choose_guard(self):
-        active = [unit for unit in self.front_line if unit.is_active]
+        active = self.list_active()
+        valid_range = [str(i + 1) for i in range(len(active))]
+        print(f'Your mage {self.name} is being targeted, you may choose a creature to block the attack. Select a number and press Enter.')
         for i in range(len(active)):
-            print(f'{i + 1} - {active[i]}')
-        guard = int(input(f'Your mage {self.name} is being targeted, you may choose a creature to block the attack. Select a number and press Enter.\n'))
-        if guard > 1:
-            active[guard - 1].is_active = False
-            print(f'{self.name} is blocking the attack with {active[guard - 1].name}.')
-        return active[guard - 1]
+            if i == 0:
+                print(f'{i + 1} - No guard, allow {self.name} to take damage.')
+            else:
+                print(f'{i + 1} - {active[i]}')
+        guard = input()
+        while guard not in valid_range:
+            guard = input('That is not a valid choice.  Please select a number from the list above and press Enter.\n')
+        if int(guard) > 1:
+            active[int(guard) - 1].is_active = False
+            print(f'{self.name} is blocking the attack with {active[int(guard) - 1].name}.')
+        return active[int(guard) - 1]
 
     def cast_spell(self, spell, target=None):
         self.lose_mana(spell.mana_cost)
@@ -143,6 +153,14 @@ class Mage(Unit):
             print(f'{self.name} is casting {spell.name} on {target.name}.')
             if 'heal' in spell.action:
                 target.gain_health(spell.roll_dice())
+            if 'gain armor' in spell.action:
+                target.armor = spell.roll_dice()
+                print(f'{target.name} has gained armor.\n')
+            if 'melt armor' in spell.action or 'Acid' in spell.school:
+                if target.roll_status_die() > spell.status_roll:
+                    target.full_armor = 0
+                    target.armor = 0
+                    print(f"{target.name}'s armor melted away!\n")
             if 'regenerate health' in spell.action:
                 target.health_regen += spell.roll_dice()
                 print(f'{target.name} will start to regenerate health between rounds.\n')
@@ -198,16 +216,23 @@ class Mage(Unit):
     def end_round_upkeep(self):
         for unit in self.front_line:
             if unit.is_burn:
+                print(f"{unit.name} takes damage from a burn.")
                 unit.lose_health(random.randint(1, 6))
                 if self.roll_status_die() > 13:
                     unit.is_burn = False
+                    print(f'{unit.name} is no longer burned.')
             if unit.is_poison:
+                print(f'{unit.name} takes damage from poison.')
                 unit.lose_health(random.randint(1, 3))
             if unit.is_dead:
+                print(f'{unit.name} has been cleared from the arena.\n')
                 self.graveyard.append(unit)
                 self.front_line.remove(unit)
-            unit.is_active = True
-            unit.gain_health(unit.health_regen)
+            else:
+                unit.is_active = True
+                if unit.armor < unit.full_armor:
+                    unit.armor = unit.full_armor
+                unit.gain_health(unit.health_regen)
         self.gain_mana(self.mana_regen)
 
     
@@ -221,12 +246,13 @@ class Creature(Unit):
 
 
 class Spell:
-    def __init__(self, name, school, action, attack_dice, mana_cost):
+    def __init__(self, name, school, action, attack_dice, mana_cost, status_roll=None):
         self.name = name
         self.school = school
         self.action = action
         self.attack_dice = attack_dice
         self.mana_cost = mana_cost
+        self.status_roll = status_roll
 
     def __repr__(self):
         return f"{self.name} is a {' '.join(self.school)} spell that costs {self.mana_cost} mana.  Its target will {' and '.join(self.action)} using d{self.attack_dice} dice."
@@ -235,7 +261,7 @@ class Spell:
         sum = 0
         for die in self.attack_dice:
             sum += random.randint(1, die)
-        print(f'Your spell dice rolled {sum}')
+        print(f'Your spell dice rolled {sum}.')
         return sum
 
 
@@ -247,8 +273,8 @@ cleric1 = Creature("Artemis", ['Holy', 'cleric'], 10, 14, "a spear", [6, 6], 1, 
 angel1 = Creature("Cassiel", ['Holy', 'angel'], 8, 9, 'holy magic', [4, 4])
 angel2 = Creature("Guardian Angel", ['Holy', 'angel'], 12, 12, 'a shortsword', [8, 8], 1)
 heal1 = Spell("Minor Restoration", ['Holy', 'healing'], ["heal"], [4, 4], 6)
-fireball1 = Spell("Fireball", ['Fire', 'attack'], ["take damage"], [10, 4, 4], 12)
-sludge_bomb = Spell("Sludge Bomb", ['Poison', 'attack'], ['take damage', 'be poisoned'], [6, 6], 5)
+fireball1 = Spell("Fireball", ['Fire', 'attack'], ["take damage"], [10, 4, 4], 12, 12)
+sludge_bomb = Spell("Sludge Bomb", ['Poison', 'attack'], ['take damage', 'be poisoned'], [6, 6], 5, 14)
 
 
 #angel2.attack(dragon1)
@@ -259,11 +285,7 @@ priestess = Mage("Asyra", "Holy", 34, 9, 9, "the Staff of Asyra", [6, 6])
 priestess.spellbook = [dragon1, cleric1, angel1, angel2, heal1, fireball1, sludge_bomb]
 warlock = Mage('Taylor', 'Demon', 38, 11, 9, 'a fire whip', [8, 10], 3)
 
-priestess.cast_spell(dragon1)
+priestess.gain_mana(50)
 priestess.cast_spell(cleric1)
-before = [unit.name for unit in priestess.front_line if unit.is_active]
-priestess.end_round_upkeep()
-warlock.attack(priestess)
-active = [unit.name for unit in priestess.front_line if unit.is_active]
-print(before)
-print(active)
+priestess.attack(warlock)
+cleric1.attack(warlock)
