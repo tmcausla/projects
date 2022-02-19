@@ -23,6 +23,7 @@ class Unit:
         self.is_weak = False
         self.enemy = None
 
+#allows a unit to gain health, caps healing at max_health value
     def gain_health(self, value):
         print(f'{self.name} is gaining {value} health.')
         self.health += value
@@ -30,7 +31,8 @@ class Unit:
         if self.health > self.max_health:
             self.health = self.max_health
         print(f'{self.name} now has {self.health} health.\n')
-    
+
+#takes health away from a unit taking armor into account, when health reaches zero unit will cure negative status and lose active status
     def lose_health(self, value):
         print(f'{self.name} is taking {value} damage.')
         if self.armor > 0:
@@ -52,6 +54,7 @@ class Unit:
         if self.health == 0:
             print(f'{self.name} is dead!')
 
+#rolls the set of dice unique to each spell and unit
     def roll_dice(self):
         sum = 0
         for die in self.attack_dice:
@@ -59,11 +62,13 @@ class Unit:
         print(f'Your attack dice rolled {sum}.')
         return sum
 
+#rolls a d20
     def roll_status_die(self):
         result = random.randint(1, 20)
         print(f'Status die rolled {result}.')
         return result
 
+#a unit's method for attacking an enemy, player can choose a guard if mage is being targeted, not invoked for spells (melee only)
     def attack(self, target):
         if isinstance(target, Mage) and not self.is_ranged:
             target = target.choose_guard()
@@ -82,12 +87,13 @@ class Unit:
                 attack_value = new_attack_value
             self.disadvantage = False
         if target.is_weak:
-            print('Target is weak! Roll again and add the result.')
-            attack_value += self.roll_dice()
+            print('Target is weak! Roll your smallest die and add the result.')
+            attack_value += random.randint(1, self.attack_dice[-1])
         target.lose_health(attack_value)
         self.is_active = False
         print('---------------')
 
+#removes negative status conditions from a unit
     def cure_status(self):
         self.is_burn = False
         self.is_poison = False
@@ -95,9 +101,11 @@ class Unit:
         self.disadvantage = False
         print(f'{self.name} no longer suffers from negative conditions.\n')
 
+#returns a list of available targets in the enemy's front line
     def get_targets(self):
         return [unit for unit in self.enemy.front_line]
 
+#prints a list of available targets in the enemy's front line
     def list_targets(self):
         targets = self.get_targets()
         print('---------------')
@@ -109,6 +117,7 @@ class Unit:
                 print(f'{i + 1} - {targets[i]}')
         print('---------------')
 
+#returns input for selecting a target
     def choose_target(self):
         self.list_targets()
         valid_targets = self.get_targets()
@@ -120,7 +129,7 @@ class Unit:
             target = input('That is not a valid target. Please choose a number from the list above and press Enter.\n')
         return valid_targets[int(target) - 1]
 
-
+#defines Mage class, constructor initializes spellbook, front_line, graveyard lists
 class Mage(Unit):
     def __init__(self, name, school, max_health, start_mana, mana_regen, weapon, attack_dice, armor=0, is_ranged=False, health_regen=0):
         super().__init__(name, school, max_health, weapon, attack_dice, armor, is_ranged, health_regen)
@@ -131,22 +140,27 @@ class Mage(Unit):
         self.graveyard = []
         self.is_active = True
 
+#return Mage's name and school, health and armor and attack, mana
     def __repr__(self):
         return f"{self.name} is a {self.school} Mage.  They have {self.health} health + {self.armor} armor and attack with {self.weapon} using d{self.attack_dice} dice.  They have {self.mana} mana and regain {self.mana_regen} mana at the start of every round."
 
+#allows a Mage to gain mana, no maximum
     def gain_mana(self, value):
         self.mana += value
         print(f'{self.name} now has {self.mana} mana.')
 
+#takes mana away from a Mage, caps minimum to zero
     def lose_mana(self, value):
         self.mana -= value
         if self.mana < 0:
             self.mana = 0
         print(f'{self.name} now has {self.mana} mana.')
 
+#returns a list of the Mage's spellbook
     def get_spellbook(self):
         return [spell for spell in self.spellbook]
 
+#prints a list of the Mage's spellbook
     def list_spellbook(self):
         print('---------------')
         if len(self.spellbook) < 1:
@@ -157,9 +171,11 @@ class Mage(Unit):
                 print(f'{i + 1} - {self.spellbook[i]}')
         print('---------------')
 
+#returns a list of Mage's front line units
     def get_front_line(self):
         return [unit for unit in self.front_line]
 
+#prints a list of Mage's front line units
     def list_front_line(self):
         print('---------------')
         if len(self.front_line) < 1:
@@ -170,9 +186,11 @@ class Mage(Unit):
                 print(f'{i + 1} - {self.front_line[i]}')
         print('---------------')
 
+#returns a list of Mage's active units on front line
     def get_active(self):
         return [unit for unit in self.front_line if unit.is_active]
 
+#prints a list of active units on Mage's front line
     def list_active(self):
         print('---------------')
         if len(self.get_active()) < 1:
@@ -184,9 +202,11 @@ class Mage(Unit):
                 print(f'{i + 1} - {active[i]}')
         print('---------------')
 
+#returns a list of Mage's graveyard
     def get_graveyard(self):
         return [spell for spell in self.graveyard]
 
+#prints a list of Mage's graveyard contents
     def list_graveyard(self):
         print('---------------')
         if len(self.graveyard) < 1:
@@ -197,6 +217,7 @@ class Mage(Unit):
                 print(f'{i + 1} - {self.graveyard[i]}')
         print('---------------')
 
+#returns input for choosing a guard when Mage is target of an attack
     def choose_guard(self):
         active = self.get_active()
         if len(active) < 1:
@@ -216,6 +237,7 @@ class Mage(Unit):
             print(f'{self.name} is blocking the attack with {active[int(guard) - 1].name}.')
         return active[int(guard) - 1]
 
+#returns input for choosing a spell from Mage's spellbook
     def choose_spell(self):
         self.list_spellbook()
         if len(self.spellbook) < 1:
@@ -227,6 +249,7 @@ class Mage(Unit):
             spell = input('That is not a valid spell. Please choose a number from the list above and press Enter.\n')
         return spells[int(spell) - 1]
 
+#returns input for choosing an active unit from the Mage's front line
     def choose_active_unit(self):
         self.list_active()
         active = self.get_active()
@@ -238,6 +261,7 @@ class Mage(Unit):
             active_unit = input('That is not a valid unit. Please choose a number from the list above and press Enter.\n')
         return active[int(active_unit) - 1]
 
+#handles effects of spells based on keywords found in school and action properties of spell
     def cast_spell(self, spell, target=None):
         self.lose_mana(spell.mana_cost)
         if isinstance(spell, Creature):
@@ -444,6 +468,7 @@ class Mage(Unit):
         self.is_active = False
         print('---------------')
 
+#activates negative conditions and rolls to remove them, dead units cleared from arena, health and mana regen occurs
     def end_round_upkeep(self):
         for unit in self.front_line:
             if unit.is_burn:
@@ -476,16 +501,17 @@ class Mage(Unit):
         self.gain_mana(self.mana_regen)
         print('---------------')
 
-    
+#defines Creature class, constructor takes mana_cost as parameter
 class Creature(Unit):
     def __init__(self, name, school, max_health, mana_cost, weapon, attack_dice, armor=0, is_ranged=False, health_regen=0):
         super().__init__(name, school, max_health, weapon, attack_dice, armor, is_ranged, health_regen)
         self.mana_cost = mana_cost
 
+#returns Creature's name and school and mana cost, health and armor and attack
     def __repr__(self):
         return f"{self.name} is a {' '.join(self.school)} creature that costs {self.mana_cost} mana to summon.  It has {self.health} health + {self.armor} armor and attacks with {self.weapon} using d{self.attack_dice} dice."
 
-
+#defines Spell class, keywords for spell effects found in school and action properties
 class Spell:
     def __init__(self, name, school, action, attack_dice, mana_cost, status_roll=None):
         self.name = name
@@ -495,9 +521,11 @@ class Spell:
         self.mana_cost = mana_cost
         self.status_roll = status_roll
 
+#returns Spell's name and school and mana cost, effect and attack dice
     def __repr__(self):
         return f"{self.name} is a {' '.join(self.school)} spell that costs {self.mana_cost} mana.  Its target(s) will {' and '.join(self.action)} using d{self.attack_dice} dice."
-    
+
+#rolls set of dice unique to spell
     def roll_dice(self):
         sum = 0
         for die in self.attack_dice:
@@ -584,7 +612,7 @@ plant1 = Creature('Togorah', ['Nature', 'Tree'], 20, 21, 'massive branches', [12
 plant2 = Creature('Vine Snapper', ['Nature', 'Vine'], 12, 7, 'biting thorns', [8, 4], health_regen=9)
 plant3 = Creature('Thornlasher', ['Nature', 'Vine'], 13, 7, 'ensnaring vines', [6, 4], health_regen=10)
 plant4 = Creature('Raptor Vine', ['Nature', 'Vine'], 12, 9, 'voracious bites', [10, 4], health_regen=9)
-plant5 = Creature('Corrosive Orchid', ['Nature', 'Flower'], 9, 7, 'corrosive mist', [4, 4, 4], health_regen=6)
+plant5 = Creature('Corrosive Orchid', ['Nature', 'Flower'], 9, 7, 'corrosive mist', [4, 4, 4], 0, True, health_regen=6)
 plant6 = Creature('Kralathor', ['Nature', 'Vine', 'Monstrosity'], 15, 16, 'a great maw', [8, 8], 2, False, 10)
 spider1 = Creature('Giant Wolf Spider', ['Nature', 'Spider'], 15, 15, 'poison fangs', [8, 8], 4)
 plant7 = Spell('Barkskin', ['Nature', 'Healing', 'Protection'], ['gain armor', 'cure status', 'regenerate health'], [6, 6], 4)
@@ -600,8 +628,8 @@ druid_spellbook = [plant1, plant2, plant3, plant4, plant5, plant6, spider1, plan
 #creatures and spells for Beastmaster Mage spellbook
 animal1 = Creature('Galador', ['Nature', 'Protector'], 16, 16, 'lightning antlers', [8, 8], 6)
 animal2 = Creature('Dire Wolf', ['Nature', 'Canine'], 13, 12, 'savage bites', [6, 6], 4)
-animal3 = Creature('Cervere', ['Nature', 'Feline'], 13, 15, 'claws and biting', [8, 8], 4)
-animal4 = Creature('Kumanjaran Leopard', ['Nature', 'Feline'], 12, 13, 'wild slashing', [6, 6], 4)
+animal3 = Creature('Cervere', ['Nature', 'Feline'], 13, 15, 'claws and biting', [8, 8], 4, True)
+animal4 = Creature('Kumanjaran Leopard', ['Nature', 'Feline'], 12, 13, 'wild slashing', [6, 6], 4, True)
 animal5 = Creature('Mountain Ram', ['Nature', 'Goat'], 9, 8, 'battering horns', [6, 4], 2)
 animal6 = Creature('Shoalsdeep Crocodile', ['Nature', 'Reptile'], 15, 15, 'death roll', [10, 8], 6)
 animal7 = Creature('Tarok', ['Nature', 'Bird'], 11, 13, 'beak and talons', [6, 6], 5)
@@ -636,7 +664,7 @@ wizard_spellbook = [magic1, magic2, magic3, magic4, magic5, magic6, heal7, heal8
 #creatures and spells for Warlock Mage spellbook
 demon2 = Creature('Infernian Scourger', ['Demon'], 10, 9, 'claws', [6, 4], 2)
 demon3 = Creature('Drokarr', ['Demon'], 13, 14, 'a tail spike', [8, 6], 4)
-demon4 = Creature('Falming Hellion', ['Fire', 'Demon'], 11, 13, 'a hell trident', [8, 4], 4, True)
+demon4 = Creature('Flaming Hellion', ['Fire', 'Demon'], 11, 13, 'a hell trident', [8, 4], 4, True)
 demon5 = Creature('Blood Demon', ['Demon', 'Vampire'], 13, 12, 'gorging bites', [6, 6], 3, False, 9)
 demon6 = Creature('Cerberus', ['Demon', 'Canine'], 15, 17, 'biting', [6, 6, 6], 6)
 demon7 = Creature('Adramalech', ['Demon', 'Lord'], 16, 24, 'a Hellfire Scythe', [12, 8, 4], 6, False, 12)
@@ -656,3 +684,5 @@ warlock_spellbook = [demon2, demon3, demon4, demon5, demon6, demon7, curse2, cur
 
 
 ########TEST AREA#########
+demon3.attack(shark1)
+demon2.attack(shark1)
