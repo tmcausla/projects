@@ -554,15 +554,15 @@ angel3 = Creature('Valshalla', ['Holy', 'Angel'], 16, 21, 'a lightning sword', [
 angel4 = Creature('Selesius', ['Holy', 'Angel'], 15, 21, 'a halberd', [8, 6, 4], 4, False, 4)
 angel5 = Creature('Samandriel', ['Holy', 'Hero', 'Angel'], 17, 21, "the greatsword 'Starfire'", [10, 6, 4], 4, False, 4)
 dispel1 = Spell('Dispel', ['Metamagic', 'Cure'], ['cure status'], [0], 4)
-heal1 = Spell('Heal', ['Holy', 'Healing'], ['heal', 'cure status'], [12, 6], 9)
+heal1 = Spell('Lay Hands', ['Holy', 'Healing'], ['heal', 'cure status'], [12, 6], 9)
 heal2 = Spell('Minor Heal', ['Holy', 'Healing'], ['heal'], [6, 4], 5)
-heal3 = copy.deepcopy(heal2)
-regen1 = Spell('Regrowth', ['Nature', 'Regeneration'], ['regenerate health'], [4, 4], 6)
+regen1 = Spell('Sacred Ground', ['Holy', 'area', 'Regeneration'], ['regenerate health'], [6, 4], 8)
 divine_protect = Spell('Divine Protection', ['Holy', 'Protection'], ['gain armor', 'cure status'], [6, 6], 8)
 holy1 = Spell('Pillar of Righteous Flame', ['Holy', 'Fire', 'attack'], ['take damage', 'be burned', 'be dazed', 'be weakened'], [10, 6, 4], 14, 15)
 holy2 = Spell('Sunfire Burst', ['Holy', 'attack'], ['take damage', 'gain disadvantage'], [6, 4], 7)
-priestess_spellbook = [cleric1, angel1, angel2, angel3, angel4, angel5, dragon1, heal1, heal2, heal3, dispel1, regen1, divine_protect, holy1, holy2]
-priestess = Mage('Priestess of Asyra', 'Holy', 54, 15, 12, 'the Staff of Asyra', [8, 4], 4, True, 12)
+holy3 = Spell('Luminous Blast', ['Holy', 'attack'], ['take damage', 'be dazed'], [10, 4], 5, 18)
+priestess_spellbook = [cleric1, angel1, angel2, angel3, angel4, angel5, dragon1, heal1, heal2, dispel1, regen1, divine_protect, holy1, holy2, holy3]
+priestess = Mage('Priestess of Asyra', 'Holy', 54, 15, 12, 'the Staff of Asyra', [8, 4], 4, True, 10)
 priestess.spellbook = priestess_spellbook
 
 #creatures and spells for Dwarven Warlord Mage spellbook
@@ -590,6 +590,7 @@ shark1 = Creature('Deptonne Berserker', ['Aquatic', 'Deptonne'], 14, 12, 'razor 
 shark2 = Creature('Deptonne Bloodshaman', ['Aquatic', 'Deptonne', 'Cleric'], 10, 8, 'a coral staff', [6, 4], 2, False, 5)
 shark3 = Creature('Shoalsdeep Thrasher', ['Aquatic', 'Deptonne', 'Pirate'], 8, 5, 'a serrated sword', [4, 4, 4], 2)
 pirate1 = Creature('Merren Harpooner', ['Aquatic', 'Merren', 'Pirate'], 12, 12, 'a harpoon', [8, 4], 2, True)
+crocodile1 = Creature('Shoalsdeep Crocodile', ['Nature', 'Reptile'], 15, 15, 'death roll', [10, 8], 6)
 kraken1 = Creature('Kraken', ['Aquatic', 'Octopus', 'Monstrosity'], 21, 21, 'tentacles', [12, 6, 4], 4)
 kraken2 = Creature('Sherean Leviathan', ['Aquatic', 'Fish','Monstrosity'], 26, 22, 'an endless maw', [12, 8, 4], 4)
 song1 = Spell('Chant of Rage', ['Psychic', 'area', 'Song'], ['be weakened', 'lose range', 'gain advantage'], [0], 6, 8)
@@ -600,9 +601,8 @@ heal_rain1 = Spell('Renewing Rain', ['Aquatic', 'area', 'healing'], ['heal', 'cu
 water1 = Spell('Hydrothermal Vent', ['Aquatic', 'trap'], ['spring a trap'], [10, 4], 8, 12)
 water2 = Spell('Tsunami', ['Aquatic', 'area', 'attack'], ['take damage'], [6, 6, 6], 14)
 water3 = Spell('Geyser', ['Aquatic', 'attack'], ['take damage', 'be burned'], [6, 4], 4, 10)
-acid1 = Spell('Acid Ball', ['Acid', 'attack'], ['take damage', 'melt armor'], [4, 4], 5, 4)
-siren_spellbook = [shark1, shark2, shark3, pirate1, kraken1, kraken2, song1, song2, song3, song4, heal_rain1, water1, water2, water3, acid1]
-siren = Mage('Siren of Shoalsdeep', 'Aquatic', 50, 17, 11, 'Shoalsdeep Trident', [8, 6], 7, False, 20)
+siren_spellbook = [shark1, shark2, shark3, pirate1, crocodile1, kraken1, kraken2, song1, song2, song3, song4, heal_rain1, water1, water2, water3]
+siren = Mage('Siren of Shoalsdeep', 'Aquatic', 50, 13, 12, 'Shoalsdeep Trident', [8, 6, 4], 6, False, 16)
 siren.spellbook = siren_spellbook
 
 #creatures and spells for Necromancer Mage spellbook
@@ -622,7 +622,7 @@ necro2 = Spell('Drain Soul', ['Necro', 'Vampiric'], ['gain mana', 'lose mana'], 
 necro3 = Spell('Animate Dead', ['Necro', 'Resurrection'], ['be resurrected'], [10, 6], 12)
 necro4 = copy.deepcopy(necro3)
 necromancer_spellbook = [skeleton1, skeleton2, skeleton3, zombie1, zombie2, zombie3, zombie4, demon1, dispel3, dispel4, curse1, necro1, necro2, necro3, necro4]
-necromancer = Mage('Darkfenne Necromancer', 'Necro', 52, 15, 12, 'the Libro Mortuos tome', [8, 4], 8, True)
+necromancer = Mage('Darkfenne Necromancer', 'Necro', 52, 13, 11, 'the Libro Mortuos tome', [8, 4], 8, True)
 necromancer.spellbook = necromancer_spellbook
 
 #creatures and spells for Druid Mage spellbook
@@ -636,13 +636,13 @@ spider1 = Creature('Giant Wolf Spider', ['Nature', 'Spider'], 15, 15, 'poison fa
 plant7 = Spell('Barkskin', ['Nature', 'Healing', 'Protection'], ['gain armor', 'cure status', 'regenerate health'], [6, 6], 4)
 heal_rain2 = copy.deepcopy(heal_rain1)
 heal5 = copy.deepcopy(heal1)
-acid2 = copy.deepcopy(acid1)
+acid1 = Spell('Acid Ball', ['Acid', 'attack'], ['take damage', 'melt armor'], [4, 4], 5, 4)
 plant8 = Spell('Burst of Thorns', ['Nature', 'attack'], ['take damage'], [8, 4], 5)
 plant9 = copy.deepcopy(plant8)
 plant10 = Spell('Tanglevine', ['Nature', 'area', 'attack'], ['take damage', 'be dazed', 'be weakened'], [4, 4], 5, 13)
 plant11 = Spell('Stranglevine', ['Nature', 'attack'], ['take damage', 'gain disadvantage', 'be poisoned'], [8, 4], 7, 10)
-druid_spellbook = [plant1, plant2, plant3, plant4, plant5, plant6, spider1, plant7, heal_rain2, heal5, acid2, plant8, plant9, plant10, plant11]
-druid = Mage('Wychwood Druid', 'Plant Nature', 55, 12, 14, 'a Vinewhip Staff', [8, 4, 4], 7, True, 18)
+druid_spellbook = [plant1, plant2, plant3, plant4, plant5, plant6, spider1, plant7, heal_rain2, heal5, acid1, plant8, plant9, plant10, plant11]
+druid = Mage('Wychwood Druid', 'Plant Nature', 55, 12, 13, 'a Vinewhip Staff', [8, 4, 4], 6, True, 14)
 druid.spellbook = druid_spellbook
 
 #creatures and spells for Beastmaster Mage spellbook
@@ -651,7 +651,7 @@ animal2 = Creature('Dire Wolf', ['Nature', 'Canine'], 13, 12, 'savage bites', [6
 animal3 = Creature('Cervere', ['Nature', 'Feline'], 13, 15, 'claws and biting', [8, 8], 4, True)
 animal4 = Creature('Kumanjaran Leopard', ['Nature', 'Feline'], 12, 13, 'wild slashing', [6, 6], 4, True)
 animal5 = Creature('Mountain Ram', ['Nature', 'Goat'], 9, 8, 'battering horns', [6, 4], 2)
-animal6 = Creature('Shoalsdeep Crocodile', ['Nature', 'Reptile'], 15, 15, 'death roll', [10, 8], 6)
+animal6 = Creature('Redclaw', ['Nature', 'Canine'], 14, 16, 'claws and biting', [10, 6], 6)
 animal7 = Creature('Tarok', ['Nature', 'Bird'], 11, 13, 'beak and talons', [6, 6], 5)
 animal8 = Creature('Woolly Rhinoceros', ['Nature', 'Rhinoceros'], 14, 16, 'a great horn', [8, 8], 6)
 enchant1 = Spell('Lion Savagery', ['Nature', 'area', 'Enchantment'], ['be weakened'], [0], 9, 8)
@@ -662,7 +662,7 @@ enchant5 = Spell('Cheetah Speed', ['Nature', 'area', 'Enchantment'], ['become ra
 heal6 = Spell('Mending Wave', ['Holy', 'area', 'Healing'], ['heal', 'cure status'], [4, 4], 5)
 dispel5 = copy.deepcopy(dispel1)
 beastmaster_spellbook = [animal1, animal2, animal3, animal4, animal5, animal6, animal7, animal8, enchant1, enchant2, enchant3, enchant4, enchant5, heal6, dispel5]
-beastmaster = Mage('Johktari Beastmaster', 'Animal Nature', 59, 14, 11, 'a Hunting Bow', [8, 4, 4], 6, True)
+beastmaster = Mage('Johktari Beastmaster', 'Animal Nature', 59, 14, 10, 'a Hunting Bow', [8, 4, 4], 8, True)
 beastmaster.spellbook = beastmaster_spellbook
 
 #creatures and spells for Wizard Mage spellbook
@@ -682,7 +682,7 @@ fire1 = Spell('Fireball', ['Fire', 'attack'], ['take damage', 'be burned'], [12,
 fire2 = Spell('Fire Storm', ['Fire', 'area', 'attack'], ['take damage', 'be burned'], [10, 6], 11, 15)
 water4 = copy.deepcopy(water2)
 wizard_spellbook = [magic1, magic2, magic3, magic4, magic5, magic6, heal7, heal8, dispel6, electric1, electric2, earth3, fire1, fire2, water4]
-wizard = Mage('Wizard in Sortilege Manor', 'Metamagic and Elements', 52, 15, 11, 'a Staff of the Arcanum', [8, 6], 6, True)
+wizard = Mage('Wizard in Sortilege Manor', 'Metamagic and Elements', 52, 14, 14, 'a Staff of the Arcanum', [8, 6], 6, True)
 wizard.spellbook = wizard_spellbook
 
 #creatures and spells for Warlock Mage spellbook
@@ -702,25 +702,10 @@ fire5 = copy.deepcopy(fire1)
 fire6 = Spell("Devil's Trident", ['Necro', 'Fire', 'attack'], ['take damage', 'be cursed'], [8, 4], 7, 14)
 fire7 = copy.deepcopy(fire6)
 warlock_spellbook = [demon2, demon3, demon4, demon5, demon6, demon7, curse2, curse3, curse4, dispel7, fire3, fire4, fire5, fire6, fire7]
-warlock = Mage('Warlock of the Arraxian Crown', 'Demon Fire', 58, 13, 9, 'a Lash of Hellfire', [8, 6, 4], 10)
+warlock = Mage('Warlock of the Arraxian Crown', 'Demon Fire', 58, 13, 11, 'a Lash of Hellfire', [8, 6, 4], 10)
 warlock.spellbook = warlock_spellbook
 
-
-
+#declaring a list of Mages to be selected by players
+arena_mages = [priestess, warlock, beastmaster, wizard, druid, warlord, siren, necromancer]
 
 ########TEST AREA#########
-warlock.enemy = priestess
-priestess.enemy = warlock
-for spell in warlock.spellbook:
-    spell.enemy = priestess
-for spell in priestess.spellbook:
-    spell.enemy = warlock
-
-priestess.cast_spell()
-warlock.cast_spell()
-
-priestess.end_round_upkeep()
-warlock.end_round_upkeep()
-
-active_unit = priestess.choose_active_unit()
-active_unit.attack()
