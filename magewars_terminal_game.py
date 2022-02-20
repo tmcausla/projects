@@ -69,7 +69,8 @@ class Unit:
         return result
 
 #a unit's method for attacking an enemy, player can choose a guard if mage is being targeted, not invoked for spells (melee only)
-    def attack(self, target):
+    def attack(self):
+        target = self.choose_target()
         if isinstance(target, Mage) and not self.is_ranged:
             target = target.choose_guard()
         print(f'{self.name} is attacking {target.name}.')
@@ -114,7 +115,7 @@ class Unit:
         else:
             print('These are your available targets:')
             for i in range(len(targets)):
-                print(f'{i + 1} - {targets[i]}')
+                print(f'{i + 1} - {targets[i].name} currently has {targets[i].health} health + {targets[i].armor} armor. It attacks with d{targets[i].attack_dice} dice.')
         print('---------------')
 
 #returns input for selecting a target
@@ -226,9 +227,9 @@ class Mage(Unit):
         print(f'Your mage {self.name} is being targeted, you may choose a creature to block the attack. Select a number and press Enter.')
         for i in range(len(active)):
             if i == 0:
-                print(f'{i + 1} - No guard, allow {self.name} to take damage.')
+                print(f'{i + 1} - No guard, allow {self.name} to take damage. They currently have {self.health} health + {self.armor} armor.')
             else:
-                print(f'{i + 1} - {active[i]}')
+                print(f'{i + 1} - {active[i].name} currently has {active[i].health} health + {active[i].armor} armor.')
         guard = input()
         while guard not in valid_range:
             guard = input('That is not a valid choice.  Please select a number from the list above and press Enter.\n')
@@ -244,10 +245,15 @@ class Mage(Unit):
             return None
         spells = self.get_spellbook()
         valid_range = [str(i + 1) for i in range(len(spells))]
+        print(f'You have {self.mana} mana.')
         spell = input('Choose the spell you wish to cast and press Enter.\n')
         while spell not in valid_range:
-            spell = input('That is not a valid spell. Please choose a number from the list above and press Enter.\n')
-        return spells[int(spell) - 1]
+            spell = input("That is not a valid spell. Please choose a number from the list above and press Enter.\n")
+        target_spell = spells[int(spell) - 1]
+        if target_spell.mana_cost > self.mana:
+            print('You do not have enough mana to cast that spell. Please try again.')
+            return self.choose_spell()
+        return target_spell
 
 #returns input for choosing an active unit from the Mage's front line
     def choose_active_unit(self):
@@ -262,15 +268,17 @@ class Mage(Unit):
         return active[int(active_unit) - 1]
 
 #handles effects of spells based on keywords found in school and action properties of spell
-    def cast_spell(self, spell, target=None):
+    def cast_spell(self):
+        spell = self.choose_spell()
         self.lose_mana(spell.mana_cost)
         if isinstance(spell, Creature):
             self.front_line.append(spell)
             print(f'{self.name} has summoned {spell.name} to the arena.\n')
         else:
-            if target is None:
+            if 'area' in spell.school:
                 print(f'{self.name} is casting {spell.name}.')
             else:
+                target = self.choose_target()
                 print(f'{self.name} is casting {spell.name} on {target.name}.')
             if 'heal' in spell.action:
                 if 'area' in spell.school:
@@ -501,6 +509,7 @@ class Mage(Unit):
         self.gain_mana(self.mana_regen)
         print('---------------')
 
+
 #defines Creature class, constructor takes mana_cost as parameter
 class Creature(Unit):
     def __init__(self, name, school, max_health, mana_cost, weapon, attack_dice, armor=0, is_ranged=False, health_regen=0):
@@ -510,6 +519,7 @@ class Creature(Unit):
 #returns Creature's name and school and mana cost, health and armor and attack
     def __repr__(self):
         return f"{self.name} is a {' '.join(self.school)} creature that costs {self.mana_cost} mana to summon.  It has {self.health} health + {self.armor} armor and attacks with {self.weapon} using d{self.attack_dice} dice."
+
 
 #defines Spell class, keywords for spell effects found in school and action properties
 class Spell:
@@ -552,6 +562,8 @@ divine_protect = Spell('Divine Protection', ['Holy', 'Protection'], ['gain armor
 holy1 = Spell('Pillar of Righteous Flame', ['Holy', 'Fire', 'attack'], ['take damage', 'be burned', 'be dazed', 'be weakened'], [10, 6, 4], 14, 15)
 holy2 = Spell('Sunfire Burst', ['Holy', 'attack'], ['take damage', 'gain disadvantage'], [6, 4], 7)
 priestess_spellbook = [cleric1, angel1, angel2, angel3, angel4, angel5, dragon1, heal1, heal2, heal3, dispel1, regen1, divine_protect, holy1, holy2]
+priestess = Mage('Priestess of Asyra', 'Holy', 54, 15, 12, 'the Staff of Asyra', [8, 4], 4, True, 12)
+priestess.spellbook = priestess_spellbook
 
 #creatures and spells for Dwarven Warlord Mage spellbook
 dwarf1 = Creature('Dwarf Kriegshammer', ['Dwarven', 'Soldier'], 11, 11, 'a kriegshammer', [12, 6], 4)
@@ -570,6 +582,8 @@ war3 = Spell('Fortified Position', ['Soldier', 'area','Command'], ['gain armor',
 earth1 = Spell('Hail of Stones', ['Earth', 'area', 'attack'], ['take damage', 'gain disadvantage'], [8, 4, 4], 8, 8)
 earth2 = Spell('Hurl Boulder', ['Earth', 'attack'], ['take damage', 'be dazed'], [12, 8], 8, 15)
 warlord_spellbook = [dwarf1, dwarf2, dwarf3, dwarf4, dwarf5, machine1, elephant1, golem1, heal4, dispel2, war1, war2, war3, earth1, earth2]
+warlord = Mage('Anvil Throne Warlord', 'Soldier', 54, 12, 9, "Eisenach's Forge Hammer", [8, 8, 4], 14)
+warlord.spellbook = warlord_spellbook
 
 #creatures and spells for Siren Mage spellbook
 shark1 = Creature('Deptonne Berserker', ['Aquatic', 'Deptonne'], 14, 12, 'razor claws and teeth', [6, 6], 2)
@@ -588,6 +602,8 @@ water2 = Spell('Tsunami', ['Aquatic', 'area', 'attack'], ['take damage'], [6, 6,
 water3 = Spell('Geyser', ['Aquatic', 'attack'], ['take damage', 'be burned'], [6, 4], 4, 10)
 acid1 = Spell('Acid Ball', ['Acid', 'attack'], ['take damage', 'melt armor'], [4, 4], 5, 4)
 siren_spellbook = [shark1, shark2, shark3, pirate1, kraken1, kraken2, song1, song2, song3, song4, heal_rain1, water1, water2, water3, acid1]
+siren = Mage('Siren of Shoalsdeep', 'Aquatic', 50, 17, 11, 'Shoalsdeep Trident', [8, 6], 7, False, 20)
+siren.spellbook = siren_spellbook
 
 #creatures and spells for Necromancer Mage spellbook
 skeleton1 = Creature('Skeletal Minion', ['Skeleton', 'Undead', 'Soldier'], 8, 5, 'a femur', [6, 4], 2)
@@ -606,6 +622,8 @@ necro2 = Spell('Drain Soul', ['Necro', 'Vampiric'], ['gain mana', 'lose mana'], 
 necro3 = Spell('Animate Dead', ['Necro', 'Resurrection'], ['be resurrected'], [10, 6], 12)
 necro4 = copy.deepcopy(necro3)
 necromancer_spellbook = [skeleton1, skeleton2, skeleton3, zombie1, zombie2, zombie3, zombie4, demon1, dispel3, dispel4, curse1, necro1, necro2, necro3, necro4]
+necromancer = Mage('Darkfenne Necromancer', 'Necro', 52, 15, 12, 'the Libro Mortuos tome', [8, 4], 8, True)
+necromancer.spellbook = necromancer_spellbook
 
 #creatures and spells for Druid Mage spellbook
 plant1 = Creature('Togorah', ['Nature', 'Tree'], 20, 21, 'massive branches', [12, 6, 4], 4, health_regen=15)
@@ -624,6 +642,8 @@ plant9 = copy.deepcopy(plant8)
 plant10 = Spell('Tanglevine', ['Nature', 'area', 'attack'], ['take damage', 'be dazed', 'be weakened'], [4, 4], 5, 13)
 plant11 = Spell('Stranglevine', ['Nature', 'attack'], ['take damage', 'gain disadvantage', 'be poisoned'], [8, 4], 7, 10)
 druid_spellbook = [plant1, plant2, plant3, plant4, plant5, plant6, spider1, plant7, heal_rain2, heal5, acid2, plant8, plant9, plant10, plant11]
+druid = Mage('Wychwood Druid', 'Plant Nature', 55, 12, 14, 'a Vinewhip Staff', [8, 4, 4], 7, True, 18)
+druid.spellbook = druid_spellbook
 
 #creatures and spells for Beastmaster Mage spellbook
 animal1 = Creature('Galador', ['Nature', 'Protector'], 16, 16, 'lightning antlers', [8, 8], 6)
@@ -642,6 +662,8 @@ enchant5 = Spell('Cheetah Speed', ['Nature', 'area', 'Enchantment'], ['become ra
 heal6 = Spell('Mending Wave', ['Holy', 'area', 'Healing'], ['heal', 'cure status'], [4, 4], 5)
 dispel5 = copy.deepcopy(dispel1)
 beastmaster_spellbook = [animal1, animal2, animal3, animal4, animal5, animal6, animal7, animal8, enchant1, enchant2, enchant3, enchant4, enchant5, heal6, dispel5]
+beastmaster = Mage('Johktari Beastmaster', 'Animal Nature', 59, 14, 11, 'a Hunting Bow', [8, 4, 4], 6, True)
+beastmaster.spellbook = beastmaster_spellbook
 
 #creatures and spells for Wizard Mage spellbook
 magic1 = Creature('Gargoyle Sentry', ['Metamagic', 'Animated'], 16, 11, 'stone fists', [6, 6], 2)
@@ -660,6 +682,8 @@ fire1 = Spell('Fireball', ['Fire', 'attack'], ['take damage', 'be burned'], [12,
 fire2 = Spell('Fire Storm', ['Fire', 'area', 'attack'], ['take damage', 'be burned'], [10, 6], 11, 15)
 water4 = copy.deepcopy(water2)
 wizard_spellbook = [magic1, magic2, magic3, magic4, magic5, magic6, heal7, heal8, dispel6, electric1, electric2, earth3, fire1, fire2, water4]
+wizard = Mage('Wizard in Sortilege Manor', 'Metamagic and Elements', 52, 15, 11, 'a Staff of the Arcanum', [8, 6], 6, True)
+wizard.spellbook = wizard_spellbook
 
 #creatures and spells for Warlock Mage spellbook
 demon2 = Creature('Infernian Scourger', ['Demon'], 10, 9, 'claws', [6, 4], 2)
@@ -678,11 +702,25 @@ fire5 = copy.deepcopy(fire1)
 fire6 = Spell("Devil's Trident", ['Necro', 'Fire', 'attack'], ['take damage', 'be cursed'], [8, 4], 7, 14)
 fire7 = copy.deepcopy(fire6)
 warlock_spellbook = [demon2, demon3, demon4, demon5, demon6, demon7, curse2, curse3, curse4, dispel7, fire3, fire4, fire5, fire6, fire7]
-
+warlock = Mage('Warlock of the Arraxian Crown', 'Demon Fire', 58, 13, 9, 'a Lash of Hellfire', [8, 6, 4], 10)
+warlock.spellbook = warlock_spellbook
 
 
 
 
 ########TEST AREA#########
-demon3.attack(shark1)
-demon2.attack(shark1)
+warlock.enemy = priestess
+priestess.enemy = warlock
+for spell in warlock.spellbook:
+    spell.enemy = priestess
+for spell in priestess.spellbook:
+    spell.enemy = warlock
+
+priestess.cast_spell()
+warlock.cast_spell()
+
+priestess.end_round_upkeep()
+warlock.end_round_upkeep()
+
+active_unit = priestess.choose_active_unit()
+active_unit.attack()
