@@ -37,7 +37,7 @@ def end_of_round(player):
     print(f'{initiative.name} will have initiative for this round.')
     print('---------------')
 
-#prints a list of mages in arena_mages
+#prints a list of mages from arena_mages
 def list_mages():
     for i in range(len(arena_mages)):
         print(f"{i+1} - {arena_mages[i]}\n")
@@ -87,7 +87,7 @@ def explain_rules():
     print("You will keep going through rounds until one player is crowned the victor!")
     print('---------------')
 
-
+#prints out keywords used in spells and describes their function
 def list_keywords():
     print("There are lots of words used by the spell cards that won't be immediately intuitive, especially if you're unfamiliar with dueling card games.  Let's go over what you'll see as you go through your spellbooks!\n")
     print("HEALTH AND ARMOR - Health is the value that represents the life of the unit.  If your Mage's Health reaches zero, you lose!\nArmor must be depleted before applying damage to a unit's Health, and it is replenished back to the full armor value between rounds.\n")
@@ -108,9 +108,30 @@ def list_keywords():
     print("RESURRECTED - The Mage chooses a previously defeated unit to summon back to the arena.  The unit can be chosen from either player's graveyard.  The resurrected unit is cursed and loses its smallest attack die.")
     print('---------------')
 
-
+#allows a player to choose an active unit and take an action.  This constitutes their turn during a round.
 def take_turn(player):
-    pass
+    print(f'{player.name}!  It is your turn.\n')
+    blank = input('(press Enter)\n')
+    if len(player.get_active()) < 1:
+        print(f'{player.name}, you have no active units.  You will have to wait until next round.\n')
+    else:
+        active_unit = None
+        yes_or_no = 'n'
+        while yes_or_no != 'y':
+            active_unit = player.choose_active_unit()
+            yes_or_no = input(f"You have chosen {active_unit.name} to take an action, would you like to proceed? y/n\n").lower()
+        if isinstance(active_unit, Creature):
+            active_unit.attack()
+        else:
+            player_choice = input("Would you like to attack an enemy or cast a spell from your spellbook? Type 'attack' or 'spell' and press Enter.\n").lower()
+            while player_choice not in ['attack', 'spell']:
+                player_choice = input("That is not an option for your Mage.  Please choose to 'attack' or cast a 'spell' and press Enter.\n")
+            if player_choice == 'attack':
+                active_unit.attack()
+            elif player_choice == 'spell':
+                active_unit.cast_spell()
+    print('---------------')
+
 
 
 
