@@ -54,7 +54,6 @@ def choose_mages(p1_name, p2_name):
     print(f'\n{p1_name} is the {arena_mages[int(player1_choice) - 1].name}!\n')
     player1 = arena_mages[int(player1_choice) - 1]
     arena_mages.pop(int(player1_choice) - 1)
-    player1.name = p1_name
 #takes input and assigns mage variable to player 2
     list_mages()
     valid_range = [str(i+1) for i in range(len(arena_mages))]
@@ -63,17 +62,31 @@ def choose_mages(p1_name, p2_name):
         player2_choice = input(f"That is not a valid choice, {p2_name}. Please choose a Mage from the list above, type the corresponding number and press Enter.\n")
     print(f'\n{p2_name} is the {arena_mages[int(player2_choice) - 1].name}!\n')
     player2 = arena_mages[int(player2_choice) - 1]
-    arena_mages.pop(int(player2_choice) - 1)
-    player2.name = p2_name
+#changes mage names to player names
+    print(f"\nToday's match is going to be the {player1.name} facing off against the {player2.name}!")
+    player1.name, player2.name = p1_name, p2_name
 #assigns the opposing mage as the enemy property
     player1.enemy, player2.enemy = player2, player1
     for i in range(len(player1.spellbook)):
         player1.spellbook[i].enemy, player2.spellbook[i].enemy = player2, player1
+    print('---------------')
     return player1, player2
 
 
 def explain_rules():
-    pass
+    print('The goal of this game is to use your Mage to attack the other Mage until the health of you or your opponent reaches zero.  Your Mage is allowed to make one attack on your turn.\n')
+    print("But! A Mage wouldn't be much if all it did was attack.  Each Mage has a spellbook at their disposal from which they can cast spells.  Casting a spell takes up your Mage's action.\n")
+    blank = input('(press Enter)\n')
+    print("These spells can attack or curse your foes, and provide healing benefits for your allies.\nImportantly you'll also find Creatures in these spellbooks.  These are powerful allies you can summon that will have opportunities to attack your opponents on top of what your Mage can do!")
+    print("You will not always have enough mana to cast the most powerful spells, but each Mage will regain a certain amount of mana each round.\n")
+    blank = input('(press Enter)\n')
+    print("Beware!  Each spell can only be cast once.  Once a creature dies or a heal/attack spell is used they are sent to your graveyard.  Think of it as your discard pile like in some card games.")
+    print("Of course, some Mages might have abilities that can break even this simple rule... Have fun exploring your Mage's abilities!\n")
+    blank = input('(press Enter)\n')
+    print("You will play over the course of several rounds.  During a round, you will take actions with every allied Mage and Creature until they have all been used.  At this point Mages regain mana, dead units are cleared from the arena and every other unit is refreshed for a new round to begin.\n")
+    print("You will keep going through rounds until one player is crowned the victor!")
+
+
 
 def list_keywords():
     pass
@@ -98,13 +111,14 @@ print("Welcome to my very first program: Mage Wars!  This is a two player game a
 
 print("DISCLAIMER: This work is heavily inspired by Mage Wars, a board game designed by Bryan Pope and Arcane Wonders.  Some names and rules have been used straight from the physical game materials which I legally own copies of. I do not have a license nor do I have affiliation with Bryan Pope or Arcane Wonders.\n")
 
-player1_name = input("First, let's get your names.  What is the name of the first player?\n")
-player2_name = input(f'\nThank you, {player1_name}.  Next, what is the name of the second player?\n')
-print(f'\nHello {player2_name}!\n')
-print(f'{player1_name} and {player2_name}...Welcome to the Arena!\n')
+#player1_name = input("First, let's get your names.  What is the name of the first player?\n")
+#player2_name = input(f'\nThank you, {player1_name}.  Next, what is the name of the second player?\n')
+#print(f'\nHello {player2_name}!\n')
+#print(f'{player1_name} and {player2_name}...Welcome to the Arena!\n')
 
-player1, player2 = choose_mages(player1_name, player2_name)
-initiative = get_initiative(player1)
-initiative.cast_spell()
-initiative.enemy.cast_spell()
-end_of_round(initiative)
+#player1, player2 = choose_mages(player1_name, player2_name)
+#initiative = get_initiative(player1)
+#initiative.cast_spell()
+#initiative.enemy.cast_spell()
+#end_of_round(initiative)
+
