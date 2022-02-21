@@ -195,9 +195,9 @@ class Mage(Unit):
     def list_active(self):
         print('---------------')
         if len(self.get_active()) < 1:
-            print('You have no units that can take an action. You must wait until the next round.')
+            print(f'{self.name} has no units that can take an action. They must wait until the next round.')
         else:
-            print('These units can still take an action:')
+            print(f"These are {self.name}'s units that can still take an action:")
             active = self.get_active()
             for i in range(len(active)):
                 print(f'{i + 1} - {active[i]}')
@@ -481,7 +481,7 @@ class Mage(Unit):
         for unit in self.front_line:
             if unit.is_burn:
                 print(f"{unit.name} takes damage from a burn.")
-                unit.lose_health(random.randint(1, 6))
+                unit.lose_health(random.randint(2, 6))
                 if self.roll_status_die() > 13:
                     unit.is_burn = False
                     print(f'{unit.name} has treated their burn.')

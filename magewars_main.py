@@ -43,7 +43,7 @@ def list_mages():
         print(f"{i+1} - {arena_mages[i]}\n")
     print('---------------')
 
-#takes names of players and assigns mage to player based on input, changes mage name to player name, assigns enemy property for self and spells to the opposing mage
+#returns mage variables based on input from players, changes mage names to player names, assigns enemy property for self and spells to the opposing mage
 def choose_mages(p1_name, p2_name):
 #takes input and assigns mage variable to player 1, pops chosen mage out of arena_mages
     list_mages()
@@ -72,7 +72,7 @@ def choose_mages(p1_name, p2_name):
     print('---------------')
     return player1, player2
 
-
+#prints out general rules of the game
 def explain_rules():
     print('The goal of this game is to use your Mage to attack the other Mage until the health of you or your opponent reaches zero.  Your Mage is allowed to make one attack on your turn.\n')
     print("But! A Mage wouldn't be much if all it did was attack.  Each Mage has a spellbook at their disposal from which they can cast spells.  Casting a spell takes up your Mage's action.\n")
@@ -85,18 +85,38 @@ def explain_rules():
     blank = input('(press Enter)\n')
     print("You will play over the course of several rounds.  During a round, you will take actions with every allied Mage and Creature until they have all been used.  At this point Mages regain mana, dead units are cleared from the arena and every other unit is refreshed for a new round to begin.\n")
     print("You will keep going through rounds until one player is crowned the victor!")
-
+    print('---------------')
 
 
 def list_keywords():
-    pass
+    print("There are lots of words used by the spell cards that won't be immediately intuitive, especially if you're unfamiliar with dueling card games.  Let's go over what you'll see as you go through your spellbooks!\n")
+    print("HEALTH AND ARMOR - Health is the value that represents the life of the unit.  If your Mage's Health reaches zero, you lose!\nArmor must be depleted before applying damage to a unit's Health, and it is replenished back to the full armor value between rounds.\n")
+    print("REGENERATE HEALTH - The unit will regain health between rounds, then the health regen value will be decreased by one.\n")
+    print("MELT ARMOR - This permanently removes a unit's armor.\n")
+    print("MANA - this is the currency your Mage uses to cast spells.  They replenish mana between rounds.\n")
+    print("AREA - This kind of spell targets more than one friendly/enemy unit, depending on the effect.\n")
+    print("POISONED - The unit will take a small amount of damage between rounds, with a small chance of going away on its own.\n")
+    print("BURNED - The unit takes damage between rounds, with a high chance of going away on its own.\n")
+    print("WEAK - When attacked, the attacking unit will roll its smallest attack die and add it to the damage result, with a chance of going away on its own between rounds.\n")
+    print("(DIS)ADVANTAGE - When attacking, a unit with advantage rolls their attack dice twice and takes the higher result.  A disadvantaged unit rolls twice but takes the lower result.  Units lose this status after they make an attack action.\n")
+    print("CURE STATUS - The unit will be removed of negative conditions affecting it.  This means poison, burns, weak, and disadvantage.\n")
+    print("CURSE - The target is burdened with all of the negative status conditions.  This means the unit is poisoned, burned, weakened, and it gains disadvantage.\n")
+    print("GUARD - If your Mage is targeted by an attack, you may choose an active creature to take the hit for you.  This is considered that unit's action for the round.\nThis does not activate if your Mage is attacked from range or by a spell.\n")
+    print("RANGE - Range refers to a unit attacking from afar or it moves too quickly for opponents to react.  Units with range cannot be guarded when they target the enemy Mage.\n")
+    print("INSPIRED - This allows a unit that has already acted to take another action this round.\n")
+    print("DAZED - This will prevent a unit from taking an action this round.\n")
+    print("RESURRECTED - The Mage chooses a previously defeated unit to summon back to the arena.  The unit can be chosen from either player's graveyard.  The resurrected unit is cursed and loses its smallest attack die.")
+    print('---------------')
+
 
 def take_turn(player):
     pass
 
 
 
-
+ # # ### ### ### ### ## ### # #
+# # ### GAME STARTS HERE ### # #
+ # # ### ## ### ### ### ### # #
 
 print('\n\n')
 print('-------------------------------------------------')
@@ -107,9 +127,11 @@ print('M   M A   A G   G E       WW WW A   A R  R      S')
 print('M   M A   A  GGGG EEEEE   W   W A   A R   R SSSS')
 print('-------------------------------------------------\n')
 
-print("Welcome to my very first program: Mage Wars!  This is a two player game about different types of magic users dueling in an arena.  You'll get to summon mighty creatures to fight by your side and cast powerful spells to defeat your opponent.\n")
+print("Welcome to my very first independent project: Mage Wars!  This is a two player game about different types of magic users dueling in an arena.  You'll get to summon mighty creatures to fight by your side and cast powerful spells to defeat your opponent.\n")
 
 print("DISCLAIMER: This work is heavily inspired by Mage Wars, a board game designed by Bryan Pope and Arcane Wonders.  Some names and rules have been used straight from the physical game materials which I legally own copies of. I do not have a license nor do I have affiliation with Bryan Pope or Arcane Wonders.\n")
+
+
 
 #player1_name = input("First, let's get your names.  What is the name of the first player?\n")
 #player2_name = input(f'\nThank you, {player1_name}.  Next, what is the name of the second player?\n')
@@ -118,7 +140,6 @@ print("DISCLAIMER: This work is heavily inspired by Mage Wars, a board game desi
 
 #player1, player2 = choose_mages(player1_name, player2_name)
 #initiative = get_initiative(player1)
-#initiative.cast_spell()
-#initiative.enemy.cast_spell()
-#end_of_round(initiative)
 
+
+#end_of_round(initiative)
