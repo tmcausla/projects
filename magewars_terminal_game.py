@@ -180,9 +180,9 @@ class Mage(Unit):
     def list_front_line(self):
         print('---------------')
         if len(self.front_line) < 1:
-            print('You have no allies in the arena!')
+            print(f'{self.name} has no allies in the arena!')
         else:
-            print('Your allies in the arena are:')
+            print(f"{self.name}'s allies in the arena are:")
             for i in range(len(self.front_line)):
                 print(f'{i + 1} - {self.front_line[i]}')
         print('---------------')
@@ -211,9 +211,9 @@ class Mage(Unit):
     def list_graveyard(self):
         print('---------------')
         if len(self.graveyard) < 1:
-            print('Your graveyard pile is empty.')
+            print('The graveyard pile is empty.')
         else:
-            print('These are your used spells and defeated creatures:')
+            print(f"These are {self.name}'s used spells and defeated creatures:")
             for i in range(len(self.graveyard)):
                 print(f'{i + 1} - {self.graveyard[i]}')
         print('---------------')

@@ -44,7 +44,11 @@ def list_mages():
     print('---------------')
 
 #returns mage variables based on input from players, changes mage names to player names, assigns enemy property for self and spells to the opposing mage
-def choose_mages(p1_name, p2_name):
+def choose_mages():
+    p1_name = input("First, let's get your names.  What is the name of the first player?\n")
+    p2_name = input(f'\nThank you, {p1_name}.  Next, what is the name of the second player?\n')
+    print(f'\nHello {p2_name}!\n')
+    print(f'{p1_name} and {p2_name}... Welcome to the Arena!\n')
 #takes input and assigns mage variable to player 1, pops chosen mage out of arena_mages
     list_mages()
     valid_range = [str(i+1) for i in range(len(arena_mages))]
@@ -116,24 +120,63 @@ def take_turn(player):
         print(f'{player.name}, you have no active units.  You will have to wait until next round.\n')
     else:
         active_unit = None
-        yes_or_no = 'n'
-        while yes_or_no != 'y':
+        confirm = 'n'
+        while confirm != 'y':
             active_unit = player.choose_active_unit()
-            yes_or_no = input(f"You have chosen {active_unit.name} to take an action, would you like to proceed? y/n\n").lower()
+            confirm = input(f"You have chosen {active_unit.name} to take an action, would you like to proceed? y/n\n").lower()
         if isinstance(active_unit, Creature):
             active_unit.attack()
         else:
             player_choice = input("Would you like to attack an enemy or cast a spell from your spellbook? Type 'attack' or 'spell' and press Enter.\n").lower()
             while player_choice not in ['attack', 'spell']:
-                player_choice = input("That is not an option for your Mage.  Please choose to 'attack' or cast a 'spell' and press Enter.\n")
+                player_choice = input("That is not an option for your Mage.  Please choose to 'attack' or cast a 'spell' and press Enter.\n").lower()
             if player_choice == 'attack':
                 active_unit.attack()
             elif player_choice == 'spell':
                 active_unit.cast_spell()
     print('---------------')
 
-
-
+#allows a player to look at relevant lists around the arena before taking their turn
+def start_turn(player):
+    player_choice = '0'
+    while player_choice != '2':
+        print(f'{player.name}!  It is your turn.  Would you like to look at the state of the arena or proceed to take your action?\n')
+        print("1 - Look around the arena.\n2 - Take my turn.\n")
+        player_choice = input('Please select a number and press Enter.\n')
+        while player_choice not in ['1', '2']:
+            player_choice = input("That is not an option right now.  Please type 1 to look around, or type 2 to take an action and then press Enter.\n")
+        if player_choice == '1':
+            list_choice = '0'
+            while list_choice != '7':
+                print(f"{player.name}, what would you like to see?\n")
+                print("1 - I would like to see the spells in my spellbook.")
+                print("2 - I would like to see my allies in the arena.")
+                print("3 - I would like to see my active units that can still take actions.")
+                print("4 - I would like to look in the graveyard piles.")
+                print("5 - I would like to see my enemies in the arena.")
+                print("6 - I would like to see my opponent's active units that can still take an action.")
+                print("7 - Proceed and take my turn.")
+                print('---------------')
+                list_choice = input("What do you want to look at? Choose an option from the list above and press Enter.\n")
+                while list_choice not in ['1', '2', '3', '4', '5', '6', '7']:
+                    list_choice = input('That is not a valid option. Select a number from 1-6 to look at various lists of the arena, or select 7 to proceed with your action.\n')
+                if list_choice == '1':
+                    player.list_spellbook()
+                elif list_choice == '2':
+                    player.list_front_line()
+                elif list_choice == '3':
+                    player.list_active()
+                elif list_choice == '4':
+                    player.list_graveyard()
+                    player.enemy.list_graveyard()
+                elif list_choice == '5':
+                    player.list_targets()
+                elif list_choice == '6':
+                    player.enemy.list_active()
+                elif list_choice == '7':
+                    player_choice = '2'
+                    break
+    
 
  # # ### ### ### ### ## ### # #
 # # ### GAME STARTS HERE ### # #
@@ -154,13 +197,8 @@ print("DISCLAIMER: This work is heavily inspired by Mage Wars, a board game desi
 
 
 
-#player1_name = input("First, let's get your names.  What is the name of the first player?\n")
-#player2_name = input(f'\nThank you, {player1_name}.  Next, what is the name of the second player?\n')
-#print(f'\nHello {player2_name}!\n')
-#print(f'{player1_name} and {player2_name}...Welcome to the Arena!\n')
 
 #player1, player2 = choose_mages(player1_name, player2_name)
 #initiative = get_initiative(player1)
-
 
 #end_of_round(initiative)
