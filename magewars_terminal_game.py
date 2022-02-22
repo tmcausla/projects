@@ -88,7 +88,7 @@ class Unit:
                 attack_value = new_attack_value
             self.disadvantage = False
         if target.is_weak:
-            print('Target is weak! Roll your smallest die and add the result.')
+            print('Target is weak! Roll your smallest attack die and add the result.')
             attack_value += random.randint(1, self.attack_dice[-1])
         target.lose_health(attack_value)
         self.is_active = False
@@ -221,22 +221,26 @@ class Mage(Unit):
 #returns input for choosing a guard when Mage is target of an attack
     def choose_guard(self):
         active = self.get_active()
+        if self in active:
+            active.remove(self)
         if len(active) < 1:
             return self
         valid_range = [str(i + 1) for i in range(len(active))]
-        print(f'Your mage {self.name} is being targeted, you may choose a creature to block the attack. Select a number and press Enter.')
+        print(f'Your mage {self.name} is being targeted, you may choose a creature to block the attack. Select a number and press Enter.\n')
+        print(f'0 - No guard, allow {self.name} to take damage. They currently have {self.health} health + {self.armor} armor.')
         for i in range(len(active)):
-            if i == 0:
-                print(f'{i + 1} - No guard, allow {self.name} to take damage. They currently have {self.health} health + {self.armor} armor.')
-            else:
-                print(f'{i + 1} - {active[i].name} currently has {active[i].health} health + {active[i].armor} armor.')
-        guard = input()
-        while guard not in valid_range:
-            guard = input('That is not a valid choice.  Please select a number from the list above and press Enter.\n')
-        if int(guard) > 1:
-            active[int(guard) - 1].is_active = False
-            print(f'{self.name} is blocking the attack with {active[int(guard) - 1].name}.')
-        return active[int(guard) - 1]
+            print(f"{i+1} - {active[i].name}, they currently have {active[i].health} health + {active[i].armor} armor.")
+        guard_input = input()
+        while guard_input not in valid_range:
+            guard_input = input('That is not a valid choice.  Please select a number from the list above and press Enter.\n')
+        if guard_input == '0':
+            print(f'{self.name} has chosen not to use a guard.')
+            return self
+        guard = int(guard_input) - 1
+        if guard > 0:
+            active[guard].is_active = False
+            print(f'{self.name} is blocking the attack with {active[guard].name}.')
+        return active[guard]
 
 #returns input for choosing a spell from Mage's spellbook
     def choose_spell(self):

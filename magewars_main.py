@@ -27,15 +27,15 @@ def get_initiative(player):
             return player
         else:
             print(f'Odd! {player.enemy.name} will have first initiative.\n')
-            return player
+            return player.enemy
 
 #activates end of round upkeep for each mage and changes initiative
 def end_of_round(player):
     player.end_round_upkeep()
     player.enemy.end_round_upkeep()
-    initiative = player.enemy
-    print(f'{initiative.name} will have initiative for this round.')
+    print(f'{player.enemy.name} will have initiative for this round.')
     print('---------------')
+    return player.enemy
 
 #prints a list of mages from arena_mages
 def list_mages():
@@ -81,10 +81,10 @@ def explain_rules():
     print('The goal of this game is to use your Mage to attack the other Mage until the health of you or your opponent reaches zero.  Your Mage is allowed to make one attack on your turn.\n')
     print("But! A Mage wouldn't be much if all it did was attack.  Each Mage has a spellbook at their disposal from which they can cast spells.  Casting a spell takes up your Mage's action.\n")
     blank = input('(press Enter)\n')
-    print("These spells can attack or curse your foes, and provide healing benefits for your allies.\nImportantly you'll also find Creatures in these spellbooks.  These are powerful allies you can summon that will have opportunities to attack your opponents on top of what your Mage can do!")
+    print("These spells can attack or curse your foes, and provide healing benefits for your allies.\nImportantly you'll also find Creatures in these spellbooks.  These are powerful allies you can summon that will have opportunities to attack your opponents on top of what your Mage can do!\n")
     print("You will not always have enough mana to cast the most powerful spells, but each Mage will regain a certain amount of mana each round.\n")
     blank = input('(press Enter)\n')
-    print("Beware!  Each spell can only be cast once.  Once a creature dies or a heal/attack spell is used they are sent to your graveyard.  Think of it as your discard pile like in some card games.")
+    print("Beware!  Each spell can only be cast once.  Once a creature dies or a heal/attack spell is used they are sent to your graveyard.  Think of it as your discard pile like in some card games.\n")
     print("Of course, some Mages might have abilities that can break even this simple rule... Have fun exploring your Mage's abilities!\n")
     blank = input('(press Enter)\n')
     print("You will play over the course of several rounds.  During a round, you will take actions with every allied Mage and Creature until they have all been used.  At this point Mages regain mana, dead units are cleared from the arena and every other unit is refreshed for a new round to begin.\n")
@@ -114,7 +114,7 @@ def list_keywords():
 
 #allows a player to choose an active unit and take an action.  This constitutes their turn during a round.
 def take_turn(player):
-    print(f'{player.name}!  It is your turn.\n')
+    print(f'{player.name}!  It is time to act!\n')
     blank = input('(press Enter)\n')
     if len(player.get_active()) < 1:
         print(f'{player.name}, you have no active units.  You will have to wait until next round.\n')
@@ -147,7 +147,7 @@ def start_turn(player):
             player_choice = input("That is not an option right now.  Please type 1 to look around, or type 2 to take an action and then press Enter.\n")
         if player_choice == '1':
             list_choice = '0'
-            while list_choice != '7':
+            while list_choice != '8':
                 print(f"{player.name}, what would you like to see?\n")
                 print("1 - I would like to see the spells in my spellbook.")
                 print("2 - I would like to see my allies in the arena.")
@@ -155,7 +155,8 @@ def start_turn(player):
                 print("4 - I would like to look in the graveyard piles.")
                 print("5 - I would like to see my enemies in the arena.")
                 print("6 - I would like to see my opponent's active units that can still take an action.")
-                print("7 - Proceed and take my turn.")
+                print("7 - I would like to read about keywords in spells.")
+                print("8 - Proceed and take my turn.")
                 print('---------------')
                 list_choice = input("What do you want to look at? Choose an option from the list above and press Enter.\n")
                 while list_choice not in ['1', '2', '3', '4', '5', '6', '7']:
@@ -174,6 +175,8 @@ def start_turn(player):
                 elif list_choice == '6':
                     player.enemy.list_active()
                 elif list_choice == '7':
+                    list_keywords()
+                elif list_choice == '8':
                     player_choice = '2'
                     break
     
@@ -195,10 +198,19 @@ print("Welcome to my very first independent project: Mage Wars!  This is a two p
 
 print("DISCLAIMER: This work is heavily inspired by Mage Wars, a board game designed by Bryan Pope and Arcane Wonders.  Some names and rules have been used straight from the physical game materials which I legally own copies of. I do not have a license nor do I have affiliation with Bryan Pope or Arcane Wonders.\n")
 
+explain_rules()
+list_keywords()
 
+player1, player2 = choose_mages()
+initiative = get_initiative(player1)
+count = 0
+while count < 4:
+    while len(initiative.get_active()) > 0 and len(initiative.enemy.get_active()) > 0:
+        start_turn(initiative)
+        take_turn(initiative)
+        start_turn(initiative.enemy)
+        take_turn(initiative.enemy)
+    initiative = end_of_round(initiative)
+    count += 1
 
-
-#player1, player2 = choose_mages(player1_name, player2_name)
-#initiative = get_initiative(player1)
-
-#end_of_round(initiative)
+print('Lookin good dere guy!')
