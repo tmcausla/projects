@@ -237,9 +237,8 @@ class Mage(Unit):
             print(f'{self.name} has chosen not to use a guard.')
             return self
         guard = int(guard_input) - 1
-        if guard > 0:
-            active[guard].is_active = False
-            print(f'{self.name} is blocking the attack with {active[guard].name}.')
+        active[guard].is_active = False
+        print(f'{self.name} is blocking the attack with {active[guard].name}.')
         return active[guard]
 
 #returns input for choosing a spell from Mage's spellbook
@@ -566,7 +565,7 @@ holy1 = Spell('Pillar of Righteous Flame', ['Holy', 'Fire', 'attack'], ['take da
 holy2 = Spell('Sunfire Burst', ['Holy', 'attack'], ['take damage', 'gain disadvantage'], [6, 4], 7)
 holy3 = Spell('Luminous Blast', ['Holy', 'attack'], ['take damage', 'be dazed'], [10, 4], 5, 18)
 priestess_spellbook = [cleric1, angel1, angel2, angel3, angel4, angel5, dragon1, heal1, heal2, dispel1, regen1, divine_protect, holy1, holy2, holy3]
-priestess = Mage('Priestess of Asyra', 'Holy', 44, 15, 12, 'the Staff of Asyra', [8, 4], 4, True, 10)
+priestess = Mage('Priestess of Asyra', 'Holy', 34, 15, 12, 'the Staff of Asyra', [8, 4], 4, True, 10)
 priestess.spellbook = priestess_spellbook
 
 #creatures and spells for Dwarven Warlord Mage spellbook
@@ -586,7 +585,7 @@ war3 = Spell('Fortified Position', ['Soldier', 'area','Command'], ['gain armor',
 earth1 = Spell('Hail of Stones', ['Earth', 'area', 'attack'], ['take damage', 'gain disadvantage'], [8, 4, 4], 8, 8)
 earth2 = Spell('Hurl Boulder', ['Earth', 'attack'], ['take damage', 'be dazed'], [12, 8], 8, 15)
 warlord_spellbook = [dwarf1, dwarf2, dwarf3, dwarf4, dwarf5, machine1, elephant1, golem1, heal4, dispel2, war1, war2, war3, earth1, earth2]
-warlord = Mage('Anvil Throne Warlord', 'Soldier', 44, 12, 9, "Eisenach's Forge Hammer", [8, 8, 4], 14)
+warlord = Mage('Anvil Throne Warlord', 'Soldier', 34, 12, 9, "Eisenach's Forge Hammer", [8, 8, 4], 14)
 warlord.spellbook = warlord_spellbook
 
 #creatures and spells for Siren Mage spellbook
@@ -606,7 +605,7 @@ water1 = Spell('Hydrothermal Vent', ['Aquatic', 'trap'], ['spring a trap'], [10,
 water2 = Spell('Tsunami', ['Aquatic', 'area', 'attack'], ['take damage'], [6, 6, 6], 14)
 water3 = Spell('Geyser', ['Aquatic', 'attack'], ['take damage', 'be burned'], [6, 4], 4, 10)
 siren_spellbook = [shark1, shark2, shark3, pirate1, crocodile1, kraken1, kraken2, song1, song2, song3, song4, heal_rain1, water1, water2, water3]
-siren = Mage('Siren of Shoalsdeep', 'Aquatic', 40, 13, 12, 'Shoalsdeep Trident', [8, 6, 4], 6, False, 16)
+siren = Mage('Siren of Shoalsdeep', 'Aquatic', 30, 13, 12, 'Shoalsdeep Trident', [8, 6, 4], 6, False, 16)
 siren.spellbook = siren_spellbook
 
 #creatures and spells for Necromancer Mage spellbook
@@ -626,7 +625,7 @@ necro2 = Spell('Drain Soul', ['Necro', 'Vampiric'], ['gain mana', 'lose mana'], 
 necro3 = Spell('Animate Dead', ['Necro', 'Resurrection'], ['be resurrected'], [10, 6], 12)
 necro4 = copy.deepcopy(necro3)
 necromancer_spellbook = [skeleton1, skeleton2, skeleton3, zombie1, zombie2, zombie3, zombie4, demon1, dispel3, dispel4, curse1, necro1, necro2, necro3, necro4]
-necromancer = Mage('Darkfenne Necromancer', 'Necro', 42, 13, 11, 'the Libro Mortuos tome', [8, 4], 8, True)
+necromancer = Mage('Darkfenne Necromancer', 'Necro', 32, 13, 11, 'the Libro Mortuos tome', [8, 4], 8, True)
 necromancer.spellbook = necromancer_spellbook
 
 #creatures and spells for Druid Mage spellbook
@@ -646,7 +645,7 @@ plant9 = copy.deepcopy(plant8)
 plant10 = Spell('Tanglevine', ['Nature', 'area', 'attack'], ['take damage', 'be dazed', 'be weakened'], [4, 4], 5, 13)
 plant11 = Spell('Stranglevine', ['Nature', 'attack'], ['take damage', 'gain disadvantage', 'be poisoned'], [8, 4], 7, 10)
 druid_spellbook = [plant1, plant2, plant3, plant4, plant5, plant6, spider1, plant7, heal_rain2, heal5, acid1, plant8, plant9, plant10, plant11]
-druid = Mage('Wychwood Druid', 'Plant Nature', 45, 12, 13, 'a Vinewhip Staff', [8, 4, 4], 6, True, 14)
+druid = Mage('Wychwood Druid', 'Plant Nature', 35, 12, 13, 'a Vinewhip Staff', [8, 4, 4], 6, True, 14)
 druid.spellbook = druid_spellbook
 
 #creatures and spells for Beastmaster Mage spellbook
@@ -666,7 +665,7 @@ enchant5 = Spell('Cheetah Speed', ['Nature', 'area', 'Enchantment'], ['become ra
 heal6 = Spell('Mending Wave', ['Holy', 'area', 'Healing'], ['heal', 'cure status'], [4, 4], 5)
 dispel5 = copy.deepcopy(dispel1)
 beastmaster_spellbook = [animal1, animal2, animal3, animal4, animal5, animal6, animal7, animal8, enchant1, enchant2, enchant3, enchant4, enchant5, heal6, dispel5]
-beastmaster = Mage('Johktari Beastmaster', 'Animal Nature', 49, 14, 10, 'a Hunting Bow', [8, 4, 4], 8, True)
+beastmaster = Mage('Johktari Beastmaster', 'Animal Nature', 39, 14, 10, 'a Hunting Bow', [8, 4, 4], 8, True)
 beastmaster.spellbook = beastmaster_spellbook
 
 #creatures and spells for Wizard Mage spellbook
@@ -686,7 +685,7 @@ fire1 = Spell('Fireball', ['Fire', 'attack'], ['take damage', 'be burned'], [12,
 fire2 = Spell('Fire Storm', ['Fire', 'area', 'attack'], ['take damage', 'be burned'], [10, 6], 11, 15)
 water4 = copy.deepcopy(water2)
 wizard_spellbook = [magic1, magic2, magic3, magic4, magic5, magic6, heal7, heal8, dispel6, electric1, electric2, earth3, fire1, fire2, water4]
-wizard = Mage('Wizard in Sortilege Manor', 'Metamagic and Elements', 42, 14, 14, 'a Staff of the Arcanum', [8, 6], 6, True)
+wizard = Mage('Wizard in Sortilege Manor', 'Metamagic and Elements', 32, 14, 14, 'a Staff of the Arcanum', [8, 6], 6, True)
 wizard.spellbook = wizard_spellbook
 
 #creatures and spells for Warlock Mage spellbook
@@ -706,7 +705,7 @@ fire5 = copy.deepcopy(fire1)
 fire6 = Spell("Devil's Trident", ['Necro', 'Fire', 'attack'], ['take damage', 'be cursed'], [8, 4], 7, 14)
 fire7 = copy.deepcopy(fire6)
 warlock_spellbook = [demon2, demon3, demon4, demon5, demon6, demon7, curse2, curse3, curse4, dispel7, fire3, fire4, fire5, fire6, fire7]
-warlock = Mage('Warlock of the Arraxian Crown', 'Demon Fire', 48, 13, 11, 'a Lash of Hellfire', [8, 6, 4], 10)
+warlock = Mage('Warlock of the Arraxian Crown', 'Demon Fire', 38, 13, 11, 'a Lash of Hellfire', [8, 6, 4], 10)
 warlock.spellbook = warlock_spellbook
 
 #declaring a list of Mages to be selected by players
