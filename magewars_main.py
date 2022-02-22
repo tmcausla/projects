@@ -33,11 +33,11 @@ while True:
         break
     initiative = end_of_round(initiative)
 if initiative.enemy.health == 0:
-    print(f"{initiative.name} EMERGES VICTORIOUS!!\n")
+    print(f"{initiative.name.upper()} EMERGES VICTORIOUS!!\n")
 else:
-    print(f"{initiative.enemy.name} EMERGES VICTORIOUS!!\n")
+    print(f"{initiative.enemy.name.upper()} EMERGES VICTORIOUS!!\n")
     
-print("I'm thrilled that you actually played a full game.  It means something I've created was enjoyable enough to see through to the end, and is an encouraging promise of what lies ahead for me.\n")
+print("I'm thrilled that you actually played a full game and got to this point.  It means something I've created was enjoyable enough to see through to the end, and is an encouraging promise of what lies ahead for me.\n")
 print("Happy gaming, y'all.\n")
 print('## ## ## ## ## ##\n')
 print('FFFFF IIIII N   N')
@@ -45,4 +45,6 @@ print('F       I   NN  N')
 print('FFF     I   N N N')
 print('F       I   N  NN')
 print('F     IIIII N   N\n')
-print('## ## ## ## ## ##')
+print('## ## ## ## ## ##\n')
+
+print('\n(c) - Mage Wars name, character names and spell names have been used without permission.  This project is intended for learning purposes and is not affiliated with Arcane Wonders or Bryan Pope.')

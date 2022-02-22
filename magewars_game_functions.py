@@ -1,4 +1,4 @@
-from magewars_terminal_game import *
+from magewars_objects import *
 
 #allows player1 to make a 50/50 call to be the first with initiative
 def get_initiative(player):
@@ -31,7 +31,7 @@ def get_initiative(player):
 
 #activates end of round upkeep for each mage and changes initiative
 def end_of_round(player):
-    print("That's the round!  Let's get everything refreshed for another round.\n")
+    print("That's the round!  Let's get everything refreshed for the next round.\n")
     player.end_round_upkeep()
     player.enemy.end_round_upkeep()
     print(f'{player.enemy.name} will have initiative for this round.')
@@ -160,7 +160,7 @@ def start_turn(player):
                 print("8 - Proceed and take my turn.")
                 print('---------------')
                 list_choice = input("What do you want to look at? Choose an option from the list above and press Enter.\n")
-                while list_choice not in ['1', '2', '3', '4', '5', '6', '7']:
+                while list_choice not in ['1', '2', '3', '4', '5', '6', '7', '8']:
                     list_choice = input('That is not a valid option. Select a number from 1-6 to look at various lists of the arena, or select 7 to proceed with your action.\n')
                 if list_choice == '1':
                     player.list_spellbook()
