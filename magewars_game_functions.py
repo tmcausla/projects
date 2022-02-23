@@ -95,6 +95,7 @@ def explain_rules():
 #prints out keywords used in spells and describes their function
 def list_keywords():
     print("There are lots of words used by the spell cards that won't be immediately intuitive, especially if you're unfamiliar with dueling card games.  Let's go over what you'll see as you go through your spellbooks!\n")
+    blank = input('\n(press Enter)\n')
     print("HEALTH AND ARMOR - Health is the value that represents the life of the unit.  If your Mage's Health reaches zero, you lose!\nArmor must be depleted before applying damage to a unit's Health, and it is replenished back to the full armor value between rounds.\n")
     print("REGENERATE HEALTH - The unit will regain health between rounds, then the health regen value will be decreased by one.\n")
     print("MELT ARMOR - This permanently removes a unit's armor.\n")
@@ -120,13 +121,13 @@ def take_turn(player):
     if len(player.get_active()) < 1:
         print(f'{player.name}, you have no active units.  You will have to wait until next round.\n')
     else:
-        active_unit = None
         confirm = 'n'
         while confirm != 'y':
             active_unit = player.choose_active_unit()
             confirm = input(f"You have chosen {active_unit.name} to take an action, would you like to proceed? y/n\n").lower()
         if isinstance(active_unit, Creature):
             active_unit.attack()
+            active_unit.is_active = False
         else:
             player_choice = input("Would you like to attack an enemy or cast a spell from your spellbook? Type 'attack' or 'spell' and press Enter.\n").lower()
             while player_choice not in ['attack', 'spell']:
@@ -135,6 +136,7 @@ def take_turn(player):
                 active_unit.attack()
             elif player_choice == 'spell':
                 active_unit.cast_spell()
+            active_unit.is_active = False
     print('---------------')
 
 #allows a player to look at relevant lists around the arena before taking their turn

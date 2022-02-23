@@ -1,3 +1,4 @@
+from operator import truediv
 import random
 
 #defines class for unit that is capable of taking actions.  constructor initializes stats and conditions
@@ -90,7 +91,6 @@ class Unit:
             print('Target is weak! Roll your smallest attack die and add the result.')
             attack_value += random.randint(1, self.attack_dice[-1])
         target.lose_health(attack_value)
-        self.is_active = False
         print('---------------')
 
 #removes negative status conditions from a unit
@@ -220,11 +220,14 @@ class Mage(Unit):
 #returns input for choosing a guard when Mage is target of an attack
     def choose_guard(self):
         active = self.get_active()
-        if self in active:
-            active.remove(self)
         if len(active) < 1:
             return self
+        if self in active:
+            active.remove(self)
+            if len(active) == 0:
+                return self
         valid_range = [str(i + 1) for i in range(len(active))]
+        valid_range.append('0')
         print(f'Your mage {self.name} is being targeted, you may choose a creature to block the attack. Select a number and press Enter.\n')
         print(f'0 - No guard, allow {self.name} to take damage. They currently have {self.health} health + {self.armor} armor.')
         for i in range(len(active)):
@@ -247,10 +250,13 @@ class Mage(Unit):
             return None
         spells = self.get_spellbook()
         valid_range = [str(i + 1) for i in range(len(spells))]
+        valid_range.append('attack')
         print(f'You have {self.mana} mana.')
-        spell = input('Choose the spell you wish to cast and press Enter.\n')
+        spell = input("Choose the spell you wish to cast and press Enter. If you do not wish to cast a spell, type 'attack' and press Enter.\n")
         while spell not in valid_range:
             spell = input("That is not a valid spell. Please choose a number from the list above and press Enter.\n")
+        if spell == 'attack':
+            return spell
         target_spell = spells[int(spell) - 1]
         if target_spell.mana_cost > self.mana:
             print('You do not have enough mana to cast that spell. Please try again.')
@@ -285,226 +291,239 @@ class Mage(Unit):
 #handles effects of spells based on keywords found in school and action properties of spell
     def cast_spell(self):
         spell = self.choose_spell()
-        self.lose_mana(spell.mana_cost)
-        if isinstance(spell, Creature):
-            self.front_line.append(spell)
-            print(f'{self.name} has summoned {spell.name} to the arena.\n')
+        if spell == 'attack':
+            self.attack()
         else:
-            if 'area' in spell.school or 'be resurrected' in spell.action:
-                print(f'{self.name} is casting {spell.name}.')
-            elif spell.friendly:
-                target = self.choose_friendly()
+            self.lose_mana(spell.mana_cost)
+            if isinstance(spell, Creature):
+                self.front_line.append(spell)
+                print(f'{self.name} has summoned {spell.name} to the arena.\n')
             else:
-                target = self.choose_target()
-            print(f'{self.name} is casting {spell.name} on {target.name}.')
-            if 'heal' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        unit.gain_health(spell.roll_dice())
+                if 'area' in spell.school or 'be resurrected' in spell.action:
+                    print(f'{self.name} is casting {spell.name}.')
+                elif spell.friendly:
+                    target = self.choose_friendly()
+                    print(f"{self.name} is casting {spell.name} on {target.name}.")
                 else:
-                    target.gain_health(spell.roll_dice())
-            if 'gain armor' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        unit.armor += spell.roll_dice()
-                        print(f'{unit.name} has gained armor.')
-                    print('')
-                else:
-                    target.armor += spell.roll_dice()
-                    print(f'{target.name} has gained armor.\n')
-            if 'melt armor' in spell.action or 'Acid' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.roll_status_die() > spell.status_roll:
-                            unit.full_armor = 0
-                            unit.armor = 0
-                            print(f"{unit.name}'s armor melted away!")
-                    print('')
-                else:
-                    if target.roll_status_die() > spell.status_roll:
-                        target.full_armor = 0
-                        target.armor = 0
-                        print(f"{target.name}'s armor melted away!\n")
-            if 'regenerate health' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        unit.health_regen += spell.roll_dice()
-                        print(f'{unit.name} will start to regenerate health between rounds.')
-                    print('')
-                else:
-                    target.health_regen += spell.roll_dice()
-                    print(f'{target.name} will start to regenerate health between rounds.\n')
-            if 'take damage' in spell.action or 'trap' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        unit.lose_health(spell.roll_dice())
-                else:
-                    target.lose_health(spell.roll_dice())
-            if 'lose mana' in spell.action:
-                target.lose_mana(spell.roll_dice())
-            if 'gain mana' in spell.action:
-                self.gain_mana(spell.roll_dice())
-            if 'be poisoned' in spell.action or 'Poison' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.roll_status_die() > spell.status_roll:
-                            unit.is_poison = True
-                            print(f'{unit.name} is poisoned!')
-                    print('')
-                else:
-                    if target.roll_status_die() >= spell.status_roll:
-                        target.is_poison = True
-                        print(f'{target.name} is poisoned!\n')
-            if 'cure status' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        unit.cure_status()
-                    print('')
-                else:
-                    target.cure_status()
-            if 'be burned' in spell.action or 'Fire' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.roll_status_die() > spell.status_roll:
-                            unit.is_burn = True
-                            print(f'{unit.name} is burned!')
-                    print('')
-                else:
-                    if target.roll_status_die() >= spell.status_roll:
-                        target.is_burn = True
-                        print(f'{target.name} is burned!\n')
-            if 'be weakened' in spell.action or 'trap' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.roll_status_die() > spell.status_roll:
-                            unit.is_weak = True
-                            print(f'{unit.name} is feeling weak!')
-                    print('')
-                else:
-                    if target.roll_status_die() >= spell.status_roll:
-                        target.is_weak = True
-                        print(f'{target.name} is feeling weak!\n')
-            if 'gain advantage' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        if unit.disadvantage:
-                            unit.disadvantage = False
-                            print(f'{unit.name} is no longer at a disadvantage.')
-                        else:
-                            unit.advantage = True
-                            print(f'{unit.name} has gained advantage for attack!')
-                    print('')
-                else:
-                    if target.disadvantage:
-                        target.disadvantage = False
-                        print(f'{target.name} is no longer at a disadvantage.\n')
+                    target = self.choose_target()
+                    print(f'{self.name} is casting {spell.name} on {target.name}.')
+                if 'heal' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            unit.gain_health(spell.roll_dice())
                     else:
-                        target.advantage = True
-                        print(f'{target.name} has gained advantage for attack!\n')
-            if 'gain disadvantage' in spell.action or 'trap' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.advantage:
-                            unit.advantage = False
-                            print(f'{unit.name} has lost advantage.\n')
-                        else:
-                            unit.disadvantage = True
-                            print(f'{unit.name} is now disadvantaged at attacking!\n')
-                else:
-                    if target.advantage:
-                        target.advantage = False
-                        print(f'{target.name} has lost advantage.\n')
+                        target.gain_health(spell.roll_dice())
+                if 'gain armor' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            unit.armor += spell.roll_dice()
+                            print(f'{unit.name} has gained armor.')
+                        print('')
                     else:
-                        target.disadvantage = True
-                        print(f'{target.name} is now disadvantaged at attacking!\n')
-            if 'become ranged' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        unit.is_ranged = True
-                        print(f'{unit.name} can now avoid guards!')
-                    print('')
-                else:
-                    target.is_ranged = True
-                    print(f'{target.name} can now avoid guards!\n')
-            if 'lose range' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        unit.is_ranged = False
-                        print(f'{unit.name} can now be blocked.')
-                    print('')
-                else:
-                    target.is_ranged = False
-                    print(f'{target.name} can now be blocked.\n')
-            if 'be dazed' in spell.action or 'trap' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.roll_status_die() > spell.status_roll:
-                            unit.is_active = False
-                            print(f'{unit.name} will not be able to act this round.')
-                    print('')
-                else:
-                    if target.roll_status_die() > spell.status_roll:
-                        target.is_active = False
-                        print(f'{target.name} will not be able to act this round.\n')
-            if 'be inspired' in spell.action:
-                if 'area' in spell.school:
-                    for unit in self.front_line:
-                        unit.is_active = True
-                        print(f'{unit.name} is ready to act again!')
-                    print('')
-                else:
-                    target.is_active = True
-                    print(f'{target.name} is ready to act again!\n')
-            if 'be cursed' in spell.action or 'Curse' in spell.school:
-                if 'area' in spell.school:
-                    for unit in self.enemy.front_line:
-                        if unit.roll_status_die() > spell.status_roll:
-                            unit.is_poison = True
-                            unit.is_burn = True
-                            unit.is_weak = True
-                            unit.disadvantage = True
-                            print(f'{unit.name} has been cursed!')
-                    print('')
-                else:
-                    if target.roll_status_die() > spell.status_roll:
-                        target.is_poison = True
-                        target.is_burn = True
-                        target.is_weak = True
-                        target.disadvantage = True
-                        print(f'{target.name} has been cursed!\n')
-            if 'be resurrected' in spell.action:
-                graveyard = self.get_graveyard() + self.enemy.get_graveyard()
-                targets = [unit for unit in graveyard if isinstance(unit, Creature)]
-                valid_target = [str(i + 1) for i in range(len(targets))]
-                for i in range(len(targets)):
-                    print(f'{i + 1} - {targets[i]}')
-                resurrect = input('Who would you like to resurrect? Select a target and press Enter.\n')
-                while (resurrect) not in valid_target:
-                    resurrect = input('That is not a valid target. Please select a number from the list above and press Enter.\n')
-                resurrect = int(resurrect) - 1
-                targets[resurrect].gain_health(spell.roll_dice() * 2)
-                targets[resurrect].is_poison = True
-                targets[resurrect].is_weak = True
-                targets[resurrect].attack_dice.pop(-1)
-                print(f'{targets[resurrect].name} is back from the dead!\n')
-                self.front_line.append(targets[resurrect])
-            self.graveyard.append(spell)
-        self.spellbook.remove(spell)
-        self.is_active = False
-        print('---------------')
+                        target.armor += spell.roll_dice()
+                        print(f'{target.name} has gained armor.\n')
+                if 'melt armor' in spell.action or 'Acid' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.roll_status_die() > spell.status_roll:
+                                unit.full_armor = 0
+                                unit.armor = 0
+                                print(f"{unit.name}'s armor melted away!")
+                        print('')
+                    else:
+                        if target.roll_status_die() > spell.status_roll:
+                            target.full_armor = 0
+                            target.armor = 0
+                            print(f"{target.name}'s armor melted away!\n")
+                if 'regenerate health' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            unit.health_regen += spell.roll_dice()
+                            print(f'{unit.name} will start to regenerate health between rounds.')
+                        print('')
+                    else:
+                        target.health_regen += spell.roll_dice()
+                        print(f'{target.name} will start to regenerate health between rounds.\n')
+                if 'take damage' in spell.action or 'trap' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            unit.lose_health(spell.roll_dice())
+                    else:
+                        target.lose_health(spell.roll_dice())
+                if 'lose mana' in spell.action:
+                    target.lose_mana(spell.roll_dice())
+                if 'gain mana' in spell.action:
+                    self.gain_mana(spell.roll_dice())
+                if 'be poisoned' in spell.action or 'Poison' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.roll_status_die() > spell.status_roll:
+                                unit.is_poison = True
+                                print(f'{unit.name} is poisoned!')
+                        print('')
+                    else:
+                        if target.roll_status_die() >= spell.status_roll:
+                            target.is_poison = True
+                            print(f'{target.name} is poisoned!\n')
+                if 'cure status' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            unit.cure_status()
+                        print('')
+                    else:
+                        target.cure_status()
+                if 'be burned' in spell.action or 'Fire' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.roll_status_die() > spell.status_roll:
+                                unit.is_burn = True
+                                print(f'{unit.name} is burned!')
+                        print('')
+                    else:
+                        if target.roll_status_die() >= spell.status_roll:
+                            target.is_burn = True
+                            print(f'{target.name} is burned!\n')
+                if 'be weakened' in spell.action or 'trap' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.roll_status_die() > spell.status_roll:
+                                unit.is_weak = True
+                                print(f'{unit.name} is feeling weak!')
+                        print('')
+                    else:
+                        if target.roll_status_die() >= spell.status_roll:
+                            target.is_weak = True
+                            print(f'{target.name} is feeling weak!\n')
+                if 'gain advantage' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            if unit.disadvantage:
+                                unit.disadvantage = False
+                                print(f'{unit.name} is no longer at a disadvantage.')
+                            else:
+                                unit.advantage = True
+                                print(f'{unit.name} has gained advantage for attack!')
+                        print('')
+                    else:
+                        if target.disadvantage:
+                            target.disadvantage = False
+                            print(f'{target.name} is no longer at a disadvantage.\n')
+                        else:
+                            target.advantage = True
+                            print(f'{target.name} has gained advantage for attack!\n')
+                if 'gain disadvantage' in spell.action or 'trap' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.advantage:
+                                unit.advantage = False
+                                print(f'{unit.name} has lost advantage.\n')
+                            else:
+                                unit.disadvantage = True
+                                print(f'{unit.name} is now disadvantaged at attacking!\n')
+                    else:
+                        if target.advantage:
+                            target.advantage = False
+                            print(f'{target.name} has lost advantage.\n')
+                        else:
+                            target.disadvantage = True
+                            print(f'{target.name} is now disadvantaged at attacking!\n')
+                if 'become ranged' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            unit.is_ranged = True
+                            print(f'{unit.name} can now avoid guards!')
+                        print('')
+                    else:
+                        target.is_ranged = True
+                        print(f'{target.name} can now avoid guards!\n')
+                if 'lose range' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            unit.is_ranged = False
+                            print(f'{unit.name} can now be blocked.')
+                        print('')
+                    else:
+                        target.is_ranged = False
+                        print(f'{target.name} can now be blocked.\n')
+                if 'be dazed' in spell.action or 'trap' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.roll_status_die() > spell.status_roll:
+                                unit.is_active = False
+                                print(f'{unit.name} will not be able to act this round.')
+                        print('')
+                    else:
+                        if target.roll_status_die() > spell.status_roll:
+                            target.is_active = False
+                            print(f'{target.name} will not be able to act this round.\n')
+                if 'be inspired' in spell.action:
+                    if 'area' in spell.school:
+                        for unit in self.front_line:
+                            unit.is_active = True
+                            print(f'{unit.name} is ready to act again!')
+                        print('')
+                    else:
+                        target.is_active = True
+                        print(f'{target.name} is ready to act again!\n')
+                if 'be cursed' in spell.action or 'Curse' in spell.school:
+                    if 'area' in spell.school:
+                        for unit in self.enemy.front_line:
+                            if unit.roll_status_die() > spell.status_roll:
+                                unit.is_poison = True
+                                unit.is_burn = True
+                                unit.is_weak = True
+                                unit.disadvantage = True
+                                print(f'{unit.name} has been cursed!')
+                        print('')
+                    else:
+                        if target.roll_status_die() > spell.status_roll:
+                            target.is_poison = True
+                            target.is_burn = True
+                            target.is_weak = True
+                            target.disadvantage = True
+                            print(f'{target.name} has been cursed!\n')
+                if 'be resurrected' in spell.action:
+                    graveyard = self.get_graveyard() + self.enemy.get_graveyard()
+                    targets = [unit for unit in graveyard if isinstance(unit, Creature)]
+                    valid_target = [str(i + 1) for i in range(len(targets))]
+                    for i in range(len(targets)):
+                        print(f'{i + 1} - {targets[i]}')
+                    resurrect = input('Who would you like to resurrect? Select a target and press Enter.\n')
+                    while (resurrect) not in valid_target:
+                        resurrect = input('That is not a valid target. Please select a number from the list above and press Enter.\n')
+                    resurrect = int(resurrect) - 1
+                    targets[resurrect].gain_health(spell.roll_dice() * 2)
+                    targets[resurrect].is_poison = True
+                    targets[resurrect].is_weak = True
+                    targets[resurrect].attack_dice.pop(-1)
+                    print(f'{targets[resurrect].name} is back from the dead!\n')
+                    self.front_line.append(targets[resurrect])
+                self.graveyard.append(spell)
+            self.spellbook.remove(spell)
+            print('---------------')
 
 #activates negative conditions and rolls to remove them, dead units cleared from arena, health and mana regen occurs
     def end_round_upkeep(self):
         for unit in self.front_line:
             if unit.is_burn:
-                print(f"{unit.name} takes damage from a burn.")
-                unit.lose_health(random.randint(2, 6))
-                if self.roll_status_die() > 13:
+                burn_damage = random.randint(2, 6)
+                print(f"{unit.name} takes {burn_damage} damage from a burn.")
+                unit.health -= burn_damage
+                if unit.health <= 0:
+                    unit.health = 0
+                    unit.is_dead = True
+                    print(f"{unit.name} succumbs to their burn wound.")
+                elif self.roll_status_die() > 13:
                     unit.is_burn = False
                     print(f'{unit.name} has treated their burn.')
             if unit.is_poison:
-                print(f'{unit.name} takes damage from poison.')
-                unit.lose_health(random.randint(1, 3))
+                psn_damage = random.randint(1, 3)
+                print(f'{unit.name} takes {psn_damage} damage from poison.')
+                unit.health -= psn_damage
+                if unit.health <= 0:
+                    unit.health = 0
+                    unit.is_dead = True
+                    print(f"{unit.name} has succumbs to their poison wound.")
                 if self.roll_status_die() > 17:
                     unit.is_poison = False
                     print(f'{unit.name} has neutralized their poison wound.')

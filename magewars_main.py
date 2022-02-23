@@ -24,7 +24,7 @@ player1, player2 = choose_mages()
 initiative = get_initiative(player1)
 count = 0
 while True:
-    while len(initiative.get_active()) > 0 and len(initiative.enemy.get_active()) > 0:
+    while len(initiative.get_active()) > 0 or len(initiative.enemy.get_active()) > 0:
         start_turn(initiative)
         take_turn(initiative)
         start_turn(initiative.enemy)
@@ -38,6 +38,7 @@ else:
     print(f"{initiative.enemy.name.upper()} EMERGES VICTORIOUS!!\n")
     
 print("I'm thrilled that you actually played a full game and got to this point.  It means something I've created was enjoyable enough to see through to the end, and is an encouraging promise of what lies ahead for me.\n")
+print("I appreciate all constructive criticism that you wish to leave for me.\n")
 print("Happy gaming, y'all.\n")
 print('## ## ## ## ## ##\n')
 print('FFFFF IIIII N   N')
